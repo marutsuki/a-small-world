@@ -1,0 +1,5 @@
+server/.idea/
+
+# Gradle files
+server/build/
+server/.gradle/
