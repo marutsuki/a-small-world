@@ -1,7 +1,6 @@
 package io.marutsuki.asmallworld.players;
 
 import lombok.AllArgsConstructor;
-import org.bson.types.ObjectId;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,7 +18,7 @@ public class PlayerController {
 
     @PostMapping
     public Player postPlayer() {
-        return repository.save(new Player(new ObjectId().toHexString()));
+        return repository.save(new Player());
     }
 
     @DeleteMapping("/{id}")
