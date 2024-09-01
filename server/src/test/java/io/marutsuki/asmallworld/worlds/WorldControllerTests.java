@@ -40,7 +40,13 @@ public final class WorldControllerTests {
 
     @Test
     public void getAllWorldsTest() throws Exception {
-        World aWorld = new World("1", Instant.ofEpochSecond(5000), Collections.emptySet());
+        World aWorld = new World("1",
+                Instant.ofEpochSecond(5000),
+                Collections.emptyMap(),
+                Collections.emptyMap(),
+                World.DEFAULT_DIMENSIONS,
+                false);
+
         when(repository.findAll())
                 .thenReturn(List.of(aWorld));
 
@@ -57,7 +63,14 @@ public final class WorldControllerTests {
 
     @Test
     public void postWorldTest() throws Exception {
-        when(repository.save(any())).thenReturn(new World("1", Instant.ofEpochSecond(5000), Collections.emptySet()));
+        when(repository.save(any())).thenReturn(
+                new World("1",
+                        Instant.ofEpochSecond(5000),
+                        Collections.emptyMap(),
+                        Collections.emptyMap(),
+                        World.DEFAULT_DIMENSIONS,
+                        false));
+
         mvc.perform(post("/worlds"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -70,7 +83,13 @@ public final class WorldControllerTests {
 
     @Test
     public void patchWorldTest() throws Exception {
-        World aWorld = new World("2", Instant.ofEpochSecond(5000), new HashSet<>());
+        World aWorld = new World("2",
+                Instant.ofEpochSecond(5000),
+                Collections.emptyMap(),
+                Collections.emptyMap(),
+                World.DEFAULT_DIMENSIONS,
+                false);
+
         when(repository.findById("2")).thenReturn(Optional.of(aWorld));
         mvc.perform(patch("/worlds/2")
                         .content(objectMapper.writeValueAsBytes(new WorldPatch("aPlayerId")))
@@ -83,7 +102,12 @@ public final class WorldControllerTests {
                 .andExpect(jsonPath("$.players", hasItem("aPlayerId")));
 
         verify(repository, times(1))
-                .save(new World("2", Instant.ofEpochSecond(5000), Set.of("aPlayerId")));
+                .save(new World("2",
+                        Instant.ofEpochSecond(5000),
+                        Map.of("aPlayerId", any()),
+                        Collections.emptyMap(),
+                        World.DEFAULT_DIMENSIONS,
+                        false));
     }
 
     @Test
