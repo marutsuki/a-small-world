@@ -1,5 +1,6 @@
 package io.marutsuki.asmallworld.games;
 
+import io.marutsuki.asmallworld.games.misc.Location;
 import io.marutsuki.asmallworld.players.Player;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,14 +17,14 @@ public class GameController {
 
     private final GameService service;
 
-    @GetMapping("/{id}/start")
-    public void startWorld(@PathVariable String id) {
-        service.startWorld(id);
+    @GetMapping("/{worldId}/start")
+    public void startWorld(@PathVariable String worldId) {
+        service.startWorld(worldId);
     }
 
-    @GetMapping("/{id}/stop")
-    public void stopWorld(@PathVariable String id) {
-        service.stopWorld(id);
+    @GetMapping("/{worldId}/stop")
+    public void stopWorld(@PathVariable String worldId) {
+        service.stopWorld(worldId);
     }
 
     @GetMapping("/{worldId}/join")
@@ -42,5 +43,11 @@ public class GameController {
     public void onPlayerDespawn(@DestinationVariable String worldId, @DestinationVariable String playerId) {
         log.info("Request: [Player Despawn], Player ID: {}, World ID: {}", playerId, worldId);
         service.despawnPlayer(worldId, playerId);
+    }
+
+    @MessageMapping("/{worldId}/player/{playerId}/move")
+    public void onPlayerMove(@DestinationVariable String worldId, @DestinationVariable String playerId, Location location) {
+        log.debug("Request: [Player Move], Player ID: {}, World ID: {}, location: {}", playerId, worldId, location);
+        service.movePlayer(worldId, playerId, location);
     }
 }
