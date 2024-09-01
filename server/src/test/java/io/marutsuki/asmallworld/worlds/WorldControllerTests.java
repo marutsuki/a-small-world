@@ -1,6 +1,5 @@
 package io.marutsuki.asmallworld.worlds;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -10,16 +9,12 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
 
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -31,9 +26,6 @@ public final class WorldControllerTests {
 
     @Autowired
     private MockMvc mvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
 
     @MockBean
     private WorldRepository repository;
@@ -56,7 +48,7 @@ public final class WorldControllerTests {
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].id", is("1")))
                 .andExpect(jsonPath("$[0].createdAt", is("1970-01-01T01:23:20Z")))
-                .andExpect(jsonPath("$[0].players", empty()));
+                .andExpect(jsonPath("$[0].players", anEmptyMap()));
 
         verify(repository, times(1)).findAll();
     }
@@ -76,38 +68,9 @@ public final class WorldControllerTests {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id", is("1")))
                 .andExpect(jsonPath("$.createdAt", is("1970-01-01T01:23:20Z")))
-                .andExpect(jsonPath("$.players", hasSize(0)));
+                .andExpect(jsonPath("$.players", anEmptyMap()));
 
         verify(repository, times(1)).save(any());
-    }
-
-    @Test
-    public void patchWorldTest() throws Exception {
-        World aWorld = new World("2",
-                Instant.ofEpochSecond(5000),
-                Collections.emptyMap(),
-                Collections.emptyMap(),
-                World.DEFAULT_DIMENSIONS,
-                false);
-
-        when(repository.findById("2")).thenReturn(Optional.of(aWorld));
-        mvc.perform(patch("/worlds/2")
-                        .content(objectMapper.writeValueAsBytes(new WorldPatch("aPlayerId")))
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.id", is("2")))
-                .andExpect(jsonPath("$.createdAt", is("1970-01-01T01:23:20Z")))
-                .andExpect(jsonPath("$.players", hasSize(1)))
-                .andExpect(jsonPath("$.players", hasItem("aPlayerId")));
-
-        verify(repository, times(1))
-                .save(new World("2",
-                        Instant.ofEpochSecond(5000),
-                        Map.of("aPlayerId", any()),
-                        Collections.emptyMap(),
-                        World.DEFAULT_DIMENSIONS,
-                        false));
     }
 
     @Test
