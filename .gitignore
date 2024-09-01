@@ -3,3 +3,6 @@ server/.idea/
 # Gradle files
 server/build/
 server/.gradle/
+
+web-client/node_modules/
+web-client/dist/
