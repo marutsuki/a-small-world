@@ -1,14 +1,15 @@
 package io.marutsuki.asmallworld.worlds;
 
+import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.lang.NonNull;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface WorldRepository extends MongoRepository<World, String> {
+public interface WorldRepository extends MongoRepository<World, ObjectId> {
     @NonNull
-    Optional<World> findById(@NonNull String id);
+    Optional<World> findById(@NonNull ObjectId id);
 
     @NonNull
     List<World> findAll();
@@ -16,5 +17,5 @@ public interface WorldRepository extends MongoRepository<World, String> {
     @NonNull
     <T extends World> T save(@NonNull T world);
 
-    void deleteById(@NonNull String id);
+    void deleteById(@NonNull ObjectId id);
 }

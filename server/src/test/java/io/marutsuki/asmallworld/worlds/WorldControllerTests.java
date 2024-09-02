@@ -1,5 +1,6 @@
 package io.marutsuki.asmallworld.worlds;
 
+import org.bson.types.ObjectId;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -36,8 +37,7 @@ public final class WorldControllerTests {
                 Instant.ofEpochSecond(5000),
                 Collections.emptyMap(),
                 Collections.emptyMap(),
-                World.DEFAULT_DIMENSIONS,
-                false);
+                World.DEFAULT_DIMENSIONS);
 
         when(repository.findAll())
                 .thenReturn(List.of(aWorld));
@@ -60,8 +60,7 @@ public final class WorldControllerTests {
                         Instant.ofEpochSecond(5000),
                         Collections.emptyMap(),
                         Collections.emptyMap(),
-                        World.DEFAULT_DIMENSIONS,
-                        false));
+                        World.DEFAULT_DIMENSIONS));
 
         mvc.perform(post("/worlds"))
                 .andExpect(status().isOk())
@@ -80,6 +79,6 @@ public final class WorldControllerTests {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_PLAIN))
                 .andExpect(content().string("3"));
 
-        verify(repository, times(1)).deleteById("3");
+        verify(repository, times(1)).deleteById(new ObjectId("3"));
     }
 }

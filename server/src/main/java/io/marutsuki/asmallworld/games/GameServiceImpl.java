@@ -10,10 +10,9 @@ import io.marutsuki.asmallworld.worlds.World;
 import io.marutsuki.asmallworld.worlds.WorldRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.types.ObjectId;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
-
-import static io.marutsuki.asmallworld.worlds.World.active;
 
 @Slf4j
 @AllArgsConstructor
@@ -28,17 +27,20 @@ public final class GameServiceImpl implements GameService {
 
     @Override
     public void startWorld(String worldId) {
-        World world = repository.findById(worldId).orElseThrow(WorldNotFoundException::new);
-        World activeWorld = active(world, true);
-        repository.save(activeWorld);
-        worlds.put(activeWorld);
+        World world = repository.findById(new ObjectId(worldId)).orElseThrow(() -> {
+            log.error("Attempted to start world but it doesn't exist: {}", worldId);
+            return new WorldNotFoundException();
+        });
+        worlds.put(world);
     }
 
     @Override
     public void stopWorld(String worldId) {
-        World world = getWorld(worldId);
-        World activeWorld = active(world, false);
-        repository.save(activeWorld);
+        World world = worlds.get(worldId).orElseThrow(() -> {
+            log.error("Attempted to stop world but it doesn't exist: {}", worldId);
+            return new WorldNotFoundException();
+        });
+        repository.save(world);
         worlds.remove(worldId);
     }
 
