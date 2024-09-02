@@ -1,3 +1,9 @@
-export function serverUrl(path: string = ""): string {
-  return (import.meta.env.SERVER_URL || "http://localhost:8080/").concat(path);
+type Protocol = "http" | "https" | "ws" | "wss";
+export function serverUrl(
+  path: string = "",
+  protocol: Protocol = "http"
+): string {
+  return (
+    protocol + "://" + (import.meta.env.SERVER_URL || "localhost:8080/") + path
+  );
 }
