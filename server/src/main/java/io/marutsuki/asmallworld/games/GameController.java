@@ -1,14 +1,12 @@
 package io.marutsuki.asmallworld.games;
 
 import io.marutsuki.asmallworld.games.misc.Location;
-import io.marutsuki.asmallworld.players.Player;
+import io.marutsuki.asmallworld.games.misc.Vector;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 
 @Slf4j
 @AllArgsConstructor
@@ -16,22 +14,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 public class GameController {
 
     private final GameService service;
-
-    @GetMapping("/{worldId}/start")
-    public void startWorld(@PathVariable String worldId) {
-        service.startWorld(worldId);
-    }
-
-    @GetMapping("/{worldId}/stop")
-    public void stopWorld(@PathVariable String worldId) {
-        service.stopWorld(worldId);
-    }
-
-    @GetMapping("/{worldId}/join")
-    public Player onPlayerJoin(@PathVariable String worldId) {
-        log.info("Request: [Player Join], World ID: {}", worldId);
-        return service.addPlayer(worldId);
-    }
 
     @MessageMapping("/{worldId}/player/{playerId}/spawn")
     public void onPlayerSpawn(@DestinationVariable String worldId, @DestinationVariable String playerId) {
@@ -46,8 +28,8 @@ public class GameController {
     }
 
     @MessageMapping("/{worldId}/player/{playerId}/move")
-    public void onPlayerMove(@DestinationVariable String worldId, @DestinationVariable String playerId, Location location) {
-        log.debug("Request: [Player Move], Player ID: {}, World ID: {}, location: {}", playerId, worldId, location);
-        service.movePlayer(worldId, playerId, location);
+    public void onPlayerMove(@DestinationVariable String worldId, @DestinationVariable String playerId, Vector displacement) {
+        log.debug("Request: [Player Move], Player ID: {}, World ID: {}, displacement: {}", playerId, worldId, displacement);
+        service.movePlayer(worldId, playerId, displacement);
     }
 }

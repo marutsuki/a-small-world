@@ -1,6 +1,6 @@
 package io.marutsuki.asmallworld.games;
 
-import io.marutsuki.asmallworld.games.misc.Location;
+import io.marutsuki.asmallworld.games.misc.Vector;
 import io.marutsuki.asmallworld.players.Player;
 
 public interface GameService {
@@ -14,6 +14,6 @@ public interface GameService {
 
     void despawnPlayer(String worldId, String playerId);
 
-    void movePlayer(String worldId, String playerId, Location location);
+    void movePlayer(String worldId, String playerId, Vector displacement);
 
 }
