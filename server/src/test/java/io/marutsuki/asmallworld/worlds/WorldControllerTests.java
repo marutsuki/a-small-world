@@ -74,11 +74,11 @@ public final class WorldControllerTests {
 
     @Test
     public void deleteWorldTest() throws Exception {
-        mvc.perform(delete("/worlds/3"))
+        mvc.perform(delete("/worlds/66d55b319722801075d78ed3"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_PLAIN))
-                .andExpect(content().string("3"));
+                .andExpect(content().string("66d55b319722801075d78ed3"));
 
-        verify(repository, times(1)).deleteById(new ObjectId("3"));
+        verify(repository, times(1)).deleteById(new ObjectId("66d55b319722801075d78ed3"));
     }
 }
