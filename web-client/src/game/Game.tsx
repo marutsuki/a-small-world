@@ -3,6 +3,8 @@ import { World } from "./types";
 import start from "./init";
 import { serverUrl } from "../environment/config";
 import initialize from "./events/messaging";
+import listen from "./control/listener";
+import gameController from "./control/game-controller";
 
 type GameProps = {
   worldId: string;
@@ -24,8 +26,10 @@ const Game: FC<GameProps> = ({ worldId, playerId }) => {
           simulation.remove(entityId);
         },
       });
+      const stopListening = listen(gameController(playerId, messaging));
       return () => {
         messaging.deactivate();
+        stopListening();
       };
     },
     [worldId, playerId]

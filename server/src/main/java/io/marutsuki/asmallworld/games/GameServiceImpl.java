@@ -5,6 +5,7 @@ import io.marutsuki.asmallworld.games.events.DeleteEvent;
 import io.marutsuki.asmallworld.games.events.Event;
 import io.marutsuki.asmallworld.games.events.UpsertEvent;
 import io.marutsuki.asmallworld.games.misc.Location;
+import io.marutsuki.asmallworld.games.misc.Vector;
 import io.marutsuki.asmallworld.players.Player;
 import io.marutsuki.asmallworld.worlds.World;
 import io.marutsuki.asmallworld.worlds.WorldRepository;
@@ -78,15 +79,16 @@ public final class GameServiceImpl implements GameService {
     }
 
     @Override
-    public void movePlayer(String worldId, String playerId, Location location) {
+    public void movePlayer(String worldId, String playerId, Vector displacement) {
         World world = getWorld(worldId);
-        if (!world.entities().containsKey(playerId)) {
+        Entity player = world.entities().get(playerId);
+        if (player == null) {
             log.error("Attempted to move player {} to world {} but they don't exist or isn't spawned", playerId, worldId);
             throw new PlayerNotFoundException();
         }
-        Entity player = new Entity(location);
-        world.entities().put(playerId, player);
-        eventPublisher.publishEvent(new Event(worldId, new UpsertEvent(playerId, player)));
+        Entity movedPlayer = player.displace(displacement);
+        world.entities().put(playerId, movedPlayer);
+        eventPublisher.publishEvent(new Event(worldId, new UpsertEvent(playerId, movedPlayer)));
     }
 
     private World getWorld(String worldId) throws WorldNotFoundException {

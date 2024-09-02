@@ -1,8 +1,7 @@
 import { Client } from "@stomp/stompjs";
 import { serverUrl } from "../../environment/config";
-import { Entity, Location } from "../types";
+import { Location } from "../types";
 import { DeleteEvent, UpsertEvent } from "./types";
-import { on } from "events";
 
 export type MessagingInterface = {
   spawn: (playerId: string) => void;
