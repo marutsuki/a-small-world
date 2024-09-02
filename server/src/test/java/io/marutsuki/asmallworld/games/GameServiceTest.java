@@ -38,12 +38,11 @@ public final class GameServiceTest {
                 Instant.EPOCH,
                 Map.of("playerId", player),
                 new HashMap<>(),
-                World.DEFAULT_DIMENSIONS,
-                true);
+                World.DEFAULT_DIMENSIONS);
         when(worlds.get("worldId")).thenReturn(Optional.of(world));
         service.spawnPlayer("worldId", "playerId");
         verify(dispatcher, times(1))
-                .onEvent(new Event("worldId", new UpsertEvent(player.toEntity(world))));
+                .onEvent(new Event("worldId", new UpsertEvent("playerId", player.toEntity(world))));
     }
 
     @Test
@@ -54,8 +53,7 @@ public final class GameServiceTest {
                 Instant.EPOCH,
                 players,
                 new HashMap<>(),
-                World.DEFAULT_DIMENSIONS,
-                true);
+                World.DEFAULT_DIMENSIONS);
         when(worlds.get("worldId")).thenReturn(Optional.of(world));
         service.despawnPlayer("worldId", "playerId");
         verify(dispatcher, times(1))
