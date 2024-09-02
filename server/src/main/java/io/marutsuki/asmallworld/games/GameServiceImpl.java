@@ -63,7 +63,7 @@ public final class GameServiceImpl implements GameService {
         }
         Entity entity = player.toEntity(world);
         world.entities().put(playerId, entity);
-        eventPublisher.publishEvent(new Event(worldId, new UpsertEvent(entity)));
+        eventPublisher.publishEvent(new Event(worldId, new UpsertEvent(playerId, entity)));
     }
 
     @Override
@@ -86,7 +86,7 @@ public final class GameServiceImpl implements GameService {
         }
         Entity player = new Entity(location);
         world.entities().put(playerId, player);
-        eventPublisher.publishEvent(new Event(worldId, new UpsertEvent(player)));
+        eventPublisher.publishEvent(new Event(worldId, new UpsertEvent(playerId, player)));
     }
 
     private World getWorld(String worldId) throws WorldNotFoundException {

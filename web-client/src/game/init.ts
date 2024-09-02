@@ -10,12 +10,14 @@ export default function start(
     throw new Error("Failed to get 2D rendering context");
   }
 
-  const world = new Simulation(context, dimension);
+  const sim = new Simulation(context, dimension);
   const animator = new Animator(60, () => {
-    world.render();
+    sim.render();
   });
 
   animator.start();
+
+  return sim;
 }
 
 class Animator {

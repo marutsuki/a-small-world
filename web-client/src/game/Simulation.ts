@@ -7,6 +7,14 @@ export default class Simulation {
     private dimensions: Dimensions
   ) {}
 
+  public put(id: string, entity: Entity) {
+    this.entities.set(id, entity);
+  }
+
+  public remove(id: string) {
+    this.entities.delete(id);
+  }
+
   public render() {
     this.context.clearRect(
       0,

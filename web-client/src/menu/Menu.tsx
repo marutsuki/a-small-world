@@ -1,44 +1,57 @@
 import { FC, useState } from "react";
 import { serverUrl } from "../environment/config";
+import { Player, World } from "../game/types";
 
 type MenuProps = {
-  onJoinWorld: (worldId: string) => void;
+  onJoinWorld: (worldId: string, player: Player) => void;
 };
 const Menu: FC<MenuProps> = ({ onJoinWorld }) => {
   const [worldId, setWorldId] = useState("");
 
-  const createWorld = () =>
-    fetch(serverUrl("worlds"), {
-      method: "POST",
-    })
-      .then((response) => {
+  const createWorld = async () => {
+    try {
+        const response = await fetch(serverUrl("worlds"), {
+            method: "POST",
+        });
         if (response.ok) {
-          response.json().then((data) => {
-            onJoinWorld(data.id);
-          });
+          const world: World = await response.json();
+          setWorldId(world.id);
+          console.info("World created");
+        } else {
+          console.error("Failed to join world");
         }
-      })
-      .catch((error) => {
-        console.error("Failed to create world", error);
-      });
+    } catch (e: unknown) {
+        console.error("Failed to create world", e);
+    }
+  }
 
-  const startWorld = () =>
-    fetch(serverUrl(`worlds/${worldId}/start`)).then((response) => {
-      if (response.ok) {
-        console.info(`World ${worldId} started`);
-      } else {
-        console.error("Failed to join world");
-      }
-    });
+  const startWorld = async () => {
+    try {
+        const response = await fetch(serverUrl(`worlds/${worldId}/start`))
+        if (response.ok) {
+            console.info(`World ${worldId} started`);
+        } else {
+            console.error("Failed to start world");
+        }
+    } catch (e: unknown) {
+        console.error("Failed to start world", e);
+    }
+  }
 
-  const joinWorld = () =>
-    fetch(serverUrl(`worlds/${worldId}/join`)).then((response) => {
-      if (response.ok) {
-        onJoinWorld(worldId);
-      } else {
-        console.error("Failed to join world");
-      }
-    });
+  const joinWorld = async () => {
+    try {
+        const response = await fetch(serverUrl(`worlds/${worldId}/join`))
+        if (response.ok) {
+          const player: Player = await response.json();
+          onJoinWorld(worldId, player);
+        } else {
+          console.error("Failed to join world");
+        }
+    } catch (e: unknown) {
+      console.error("Failed to join world", e);
+    }
+  }
+    
 
   return (
     <div>

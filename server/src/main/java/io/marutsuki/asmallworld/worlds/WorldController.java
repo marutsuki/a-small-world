@@ -37,7 +37,7 @@ public final class WorldController {
     }
 
     @GetMapping("/{worldId}/join")
-    public Player onPlayerJoin(@PathVariable String worldId) {
+    public Player joinWorld(@PathVariable String worldId) {
         log.info("Request: [Player Join], World ID: {}", worldId);
         return service.addPlayer(worldId);
     }
