@@ -1,6 +1,8 @@
 package io.marutsuki.asmallworld.worlds;
 
 import io.marutsuki.asmallworld.games.GameService;
+import io.marutsuki.asmallworld.games.WorldNotFoundException;
+import io.marutsuki.asmallworld.games.misc.Dimension;
 import io.marutsuki.asmallworld.players.Player;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -8,6 +10,7 @@ import org.bson.types.ObjectId;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -43,6 +46,12 @@ public final class WorldController {
     public List<World> getAllWorlds() {
         log.info("Request: [Get All Worlds]");
         return repository.findAll();
+    }
+
+    @GetMapping("/{id}")
+    public World getWorld(@PathVariable String id) {
+        log.info("Request: [Get World], World ID: {}", id);
+        return repository.findById(new ObjectId(id)).orElseThrow(WorldNotFoundException::new);
     }
 
     @PostMapping
