@@ -1,6 +1,6 @@
 import { Entity } from "./types";
 
-export default class Simulation {
+export default class World {
   private entities: Map<string, Entity> = new Map();
   public constructor(private context: CanvasRenderingContext2D) {}
 
@@ -20,7 +20,6 @@ export default class Simulation {
   }
 
   public update() {
-    console.log(this.entities);
     for (const entity of this.entities.values()) {
       this.updateEntity(entity);
     }

@@ -1,8 +1,6 @@
 import { FC, useCallback } from "react";
 import start from "./init";
-import initialize from "./events/messaging";
-import listen from "./control/listener";
-import gameController from "./control/game-controller";
+import { simulator } from "./simulation";
 
 type GameProps = {
   /** The ID of the world to join. */
@@ -21,29 +19,9 @@ const Game: FC<GameProps> = ({ worldId, playerId }) => {
       // const world: World = await (
       //   await fetch(serverUrl(`worlds/${worldId}`))
       // ).json();
-      const simulation = start(canvas);
+      const stop = start(canvas, simulator({ worldId, playerId }));
 
-      // Initialize messaging client with callbacks to update the simulation
-      const messaging = initialize(worldId, {
-        onConnect: () => messaging.spawn(playerId),
-        onSpawn: ({ entityId, entity }) => {
-          simulation.put(entityId, entity);
-        },
-        onDespawn: ({ entityId }) => {
-          simulation.remove(entityId);
-        },
-        onInput: ({ entityId, input }) => {
-          simulation.patch(entityId, { input });
-        },
-      });
-
-      // Start listening for user input
-      const stopListening = listen(gameController(playerId, messaging));
-
-      return () => {
-        messaging.deactivate();
-        stopListening();
-      };
+      return () => stop();
     },
     [worldId, playerId]
   );
