@@ -9,8 +9,8 @@ type InputMessage = {
 
 /** Messaging interface for interacting with the event broker. */
 export type MessagingInterface = {
-  spawn: (playerId: string) => void;
-  input: (playerId: string, input: InputMessage) => void;
+  spawn: () => void;
+  input: (input: InputMessage) => void;
   deactivate: () => void;
 };
 
@@ -30,6 +30,7 @@ export type MessageReceiver = {
  * @returns
  */
 export default function initialize(
+  playerId: string,
   worldId: string,
   { onConnect, onSpawn, onDespawn, onInput }: MessageReceiver
 ): MessagingInterface {
@@ -66,11 +67,11 @@ export default function initialize(
   client.activate();
 
   return {
-    spawn: (playerId) =>
+    spawn: () =>
       client.publish({
         destination: `/publish/${worldId}/player/${playerId}/spawn`,
       }),
-    input: (playerId, input) =>
+    input: (input) =>
       client.publish({
         destination: `/publish/${worldId}/player/${playerId}/input`,
         body: JSON.stringify(input),

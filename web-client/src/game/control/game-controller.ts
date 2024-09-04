@@ -1,5 +1,37 @@
+import { MessagingInterface } from "../events/messaging";
 import { EntityInput, Vector } from "../types";
-import { AggregateListener } from "./listener";
+import { Observer } from "../World";
+import listen, { AggregateListener } from "./listener";
+
+export const controller = (messaging: MessagingInterface): Observer => {
+  const { listener, state } = listeners();
+  let oldInput: EntityInput | null = null;
+
+  let stopListening: () => void | null;
+  return {
+    onStart: function (): void {
+      // Start listening for user input
+      stopListening = listen(listener);
+    },
+    onUpdate: function (): void {
+      if (newInput(oldInput, state.input)) {
+        messaging.input(state.input);
+        oldInput = { speed: { ...state.input.speed } };
+      }
+    },
+    onStop: function (): void {
+      stopListening?.();
+    },
+  };
+};
+
+const newInput = (
+  oldInput: EntityInput | null,
+  newInput: EntityInput
+): boolean =>
+  oldInput === null ||
+  oldInput.speed.x !== newInput.speed.x ||
+  oldInput.speed.y !== newInput.speed.y;
 
 /**
  * Creates a {@link AggregateListener} instance that allows the user to control
@@ -9,7 +41,7 @@ import { AggregateListener } from "./listener";
  * @param messaging the messaging interface to send move events
  * @returns an {@link AggregateListener} instance
  */
-const gameController = (): {
+const listeners = (): {
   listener: AggregateListener;
   state: {
     input: EntityInput;
@@ -86,5 +118,3 @@ const gameController = (): {
     },
   };
 };
-
-export default gameController;

@@ -1,32 +1,55 @@
 import { Entity } from "./types";
 
+export type WorldAPI = {
+  put: (id: string, entity: Entity) => void;
+  patch: (id: string, entity: Partial<Entity>) => void;
+  remove: (id: string) => void;
+  forEach: (callback: (entity: Entity) => void) => void;
+  addObservers: (...observer: Observer[]) => void;
+};
+
+export type Observer = Partial<{
+  onStart: (api: WorldAPI) => void;
+  onUpdate: (api: WorldAPI) => void;
+  onStop: () => void;
+}>;
+
 export default class World {
+  private observers: Observer[] = [];
   private entities: Map<string, Entity> = new Map();
+  private started = false;
   public constructor(private context: CanvasRenderingContext2D) {}
 
-  public put(id: string, entity: Entity) {
-    this.entities.set(id, entity);
+  public addObservers(...observer: Observer[]): void {
+    this.observers.push(...observer);
   }
 
-  public patch(id: string, entity: Partial<Entity>) {
-    const oldState = this.entities.get(id);
-    if (oldState) {
-      Object.assign(oldState, entity);
+  public start() {
+    if (this.started) {
+      return;
     }
-  }
-
-  public remove(id: string) {
-    this.entities.delete(id);
+    this.observers.forEach((observer) => observer.onStart?.(this.api));
   }
 
   public update() {
-    for (const entity of this.entities.values()) {
-      this.updateEntity(entity);
+    if (!this.started) {
+      this.start();
+      this.started = true;
     }
+    this.observers.forEach((observer) => observer.onUpdate?.(this.api));
     this.render();
   }
 
-  private render() {
+  public stop() {
+    if (!this.started) {
+      return;
+    }
+    this.observers.forEach((observer) => observer.onStop?.());
+    this.observers = [];
+    this.entities.clear();
+  }
+
+  public render() {
     this.context.clearRect(
       0,
       0,
@@ -47,10 +70,32 @@ export default class World {
     });
   }
 
-  public updateEntity(entity: Entity) {
-    if (entity.input) {
-      entity.location.x += entity.input.speed.x;
-      entity.location.y += entity.input.speed.y;
+  public get api(): WorldAPI {
+    return {
+      put: this.put.bind(this),
+      patch: this.patch.bind(this),
+      remove: this.remove.bind(this),
+      forEach: this.forEach.bind(this),
+      addObservers: this.addObservers.bind(this),
+    };
+  }
+
+  public put(id: string, entity: Entity) {
+    this.entities.set(id, entity);
+  }
+
+  public patch(id: string, entity: Partial<Entity>) {
+    const oldState = this.entities.get(id);
+    if (oldState) {
+      Object.assign(oldState, entity);
     }
+  }
+
+  public remove(id: string) {
+    this.entities.delete(id);
+  }
+
+  private forEach(callback: (entity: Entity) => void) {
+    this.entities.forEach(callback);
   }
 }

@@ -1,10 +1,5 @@
-import World from "./World";
+import World, { WorldAPI } from "./World";
 
-export type WorldControl = {
-  onStart: (world: World) => void;
-  onUpdate: () => void;
-  onStop: () => void;
-};
 /**
  * Initializes the simulation.
  *
@@ -12,29 +7,23 @@ export type WorldControl = {
  * @param dimension the dimensions of the world
  * @returns the {@link Simulation} instance
  */
-export default function start(
-  canvas: HTMLCanvasElement,
-  { onStart, onUpdate, onStop }: WorldControl
-): () => void {
+export default function initializeWorld(
+  canvas: HTMLCanvasElement
+): [WorldAPI, () => void, () => void] {
   const context = canvas.getContext("2d");
   if (!context) {
     throw new Error("Failed to get 2D rendering context");
   }
 
   const sim = new World(context);
-  onStart(sim);
   const animator = new Animator(
     60,
-    () => {
-      sim.update();
-      onUpdate();
-    },
-    onStop
+    () => sim.update(),
+    () => sim.start(),
+    () => sim.stop()
   );
 
-  animator.start();
-
-  return () => animator.stop();
+  return [sim.api, () => animator.start(), () => animator.stop()];
 }
 
 /** A simple animator that updates the simulation at a fixed frame rate.*/
@@ -54,6 +43,7 @@ class Animator {
   public constructor(
     fps: number,
     private callback: () => void,
+    private onStart: () => void,
     private onStop: () => void
   ) {
     this.frequency = 1000 / fps;
@@ -63,6 +53,7 @@ class Animator {
    * Starts the animation loop.
    */
   public start() {
+    this.onStart();
     this.lastUpdate = performance.now();
     this.lastFrame = requestAnimationFrame(this.update.bind(this));
   }
