@@ -34,7 +34,7 @@ export type MessageReceiver = {
 export default function initialize(
   playerId: string,
   worldId: string,
-  { onConnect, onSpawn, onDespawn, onInput, onLocate }: MessageReceiver
+  { onConnect, onSpawn, onDespawn, onInput, onLocate }: MessageReceiver,
 ): MessagingInterface {
   console.info("Initializing messaging client");
   const client = new Client({

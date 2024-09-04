@@ -55,14 +55,14 @@ export default class World {
       0,
       0,
       this.context.canvas.width,
-      this.context.canvas.height
+      this.context.canvas.height,
     );
     this.context.fillStyle = "black";
     this.context.fillRect(
       0,
       0,
       this.context.canvas.width,
-      this.context.canvas.height
+      this.context.canvas.height,
     );
 
     this.entities.forEach((entity) => {

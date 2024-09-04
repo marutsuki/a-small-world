@@ -29,14 +29,14 @@ const Game: FC<GameProps> = ({ worldId, playerId }) => {
       api.addObservers(
         controller(messaging),
         movement(),
-        locator(playerId, messaging)
+        locator(playerId, messaging),
       );
 
       start();
 
       return () => stop();
     },
-    [worldId, playerId]
+    [worldId, playerId],
   );
   return (
     <canvas id="game-canvas" ref={initGame} width={800} height={600}>
@@ -48,7 +48,7 @@ const Game: FC<GameProps> = ({ worldId, playerId }) => {
 const initializeMessaging = (
   playerId: string,
   worldId: string,
-  api: WorldAPI
+  api: WorldAPI,
 ) => {
   const messaging = initialize(playerId, worldId, {
     onConnect: () => messaging?.spawn(),

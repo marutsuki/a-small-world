@@ -8,7 +8,7 @@ import World, { WorldAPI } from "./World";
  * @returns the {@link Simulation} instance
  */
 export default function initializeWorld(
-  canvas: HTMLCanvasElement
+  canvas: HTMLCanvasElement,
 ): [WorldAPI, () => void, () => void] {
   const context = canvas.getContext("2d");
   if (!context) {
@@ -20,7 +20,7 @@ export default function initializeWorld(
     60,
     () => sim.update(),
     () => sim.start(),
-    () => sim.stop()
+    () => sim.stop(),
   );
 
   return [sim.api, () => animator.start(), () => animator.stop()];
@@ -44,7 +44,7 @@ class Animator {
     fps: number,
     private callback: () => void,
     private onStart: () => void,
-    private onStop: () => void
+    private onStop: () => void,
   ) {
     this.frequency = 1000 / fps;
   }
