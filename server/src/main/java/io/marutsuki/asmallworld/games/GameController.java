@@ -1,7 +1,7 @@
 package io.marutsuki.asmallworld.games;
 
+import io.marutsuki.asmallworld.games.misc.Input;
 import io.marutsuki.asmallworld.games.misc.Location;
-import io.marutsuki.asmallworld.games.misc.Vector;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -27,9 +27,15 @@ public class GameController {
         service.despawnPlayer(worldId, playerId);
     }
 
-    @MessageMapping("/{worldId}/player/{playerId}/move")
-    public void onPlayerMove(@DestinationVariable String worldId, @DestinationVariable String playerId, Vector displacement) {
-        log.debug("Request: [Player Move], Player ID: {}, World ID: {}, displacement: {}", playerId, worldId, displacement);
-        service.movePlayer(worldId, playerId, displacement);
+    @MessageMapping("/{worldId}/player/{playerId}/input")
+    public void onPlayerMove(@DestinationVariable String worldId, @DestinationVariable String playerId, Input message) {
+        log.debug("Request: [Player Input], Player ID: {}, World ID: {}, input: {}", playerId, worldId, message);
+        service.playerInput(worldId, playerId, message);
+    }
+
+    @MessageMapping("/{worldId}/player/{playerId}/locate")
+    public void onPlayerLocate(@DestinationVariable String worldId, @DestinationVariable String playerId, Location location) {
+        log.info("Request: [Player Locate], Player ID: {}, World ID: {}, location: {}", playerId, worldId, location);
+        service.locatePlayer(worldId, playerId, location);
     }
 }

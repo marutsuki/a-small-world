@@ -1,11 +1,9 @@
 package io.marutsuki.asmallworld.games;
 
 import io.marutsuki.asmallworld.games.entities.Entity;
-import io.marutsuki.asmallworld.games.events.DeleteEvent;
-import io.marutsuki.asmallworld.games.events.Event;
-import io.marutsuki.asmallworld.games.events.UpsertEvent;
+import io.marutsuki.asmallworld.games.events.*;
+import io.marutsuki.asmallworld.games.misc.Input;
 import io.marutsuki.asmallworld.games.misc.Location;
-import io.marutsuki.asmallworld.games.misc.Vector;
 import io.marutsuki.asmallworld.players.Player;
 import io.marutsuki.asmallworld.worlds.World;
 import io.marutsuki.asmallworld.worlds.WorldRepository;
@@ -14,6 +12,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @AllArgsConstructor
@@ -27,71 +28,74 @@ public final class GameServiceImpl implements GameService {
     private final ApplicationEventPublisher eventPublisher;
 
     @Override
+    public Player addPlayer(String worldId) {
+        Simulation simulation = getWorld(worldId);
+        Player player = new Player();
+        simulation.players().put(player.id(), player);
+        log.info("Added Player to world {}, Player: {}", worldId, player);
+        return player;
+    }
+
+    @Override
     public void startWorld(String worldId) {
         World world = repository.findById(new ObjectId(worldId)).orElseThrow(() -> {
             log.error("Attempted to start world but it doesn't exist: {}", worldId);
             return new WorldNotFoundException();
         });
-        worlds.put(world);
+        worlds.put(worldId, createSimulation(world));
     }
 
     @Override
     public void stopWorld(String worldId) {
-        World world = worlds.get(worldId).orElseThrow(() -> {
+        Simulation simulation = worlds.get(worldId).orElseThrow(() -> {
             log.error("Attempted to stop world but it doesn't exist: {}", worldId);
             return new WorldNotFoundException();
         });
-        repository.save(world);
+        repository.save(simulation.world());
         worlds.remove(worldId);
     }
 
     @Override
-    public Player addPlayer(String worldId) {
-        World world = getWorld(worldId);
-        Player player = new Player();
-        world.players().put(player.id(), player);
-        log.debug("Added Player to world {}, Player: {}", worldId, player);
-        return player;
-    }
-
-    @Override
     public void spawnPlayer(String worldId, String playerId) {
-        World world = getWorld(worldId);
-        Player player = world.players().get(playerId);
-        if (player == null) {
-            log.error("Attempted to spawn player {} to world {} but they don't exist", playerId, worldId);
-            throw new PlayerNotFoundException();
-        }
-        Entity entity = player.toEntity(world);
-        world.entities().put(playerId, entity);
-        eventPublisher.publishEvent(new Event(worldId, new UpsertEvent(playerId, entity)));
+        Simulation simulation = getWorld(worldId);
+        Entity player = simulation.spawnPlayer(playerId);
+        eventPublisher.publishEvent(new Event(worldId, new SpawnEvent(playerId, player)));
     }
 
     @Override
     public void despawnPlayer(String worldId, String playerId) {
-        World world = getWorld(worldId);
-        if (!world.players().containsKey(playerId)) {
-            log.error("Attempted to despawn player {} from world {} but they don't exist", playerId, worldId);
-            throw new PlayerNotFoundException();
-        }
-        world.entities().remove(playerId);
-        eventPublisher.publishEvent(new Event(worldId, new DeleteEvent(playerId)));
+        Simulation simulation = getWorld(worldId);
+        simulation.entities().remove(playerId);
+        eventPublisher.publishEvent(new Event(worldId, new DespawnEvent(playerId)));
     }
 
     @Override
-    public void movePlayer(String worldId, String playerId, Vector displacement) {
-        World world = getWorld(worldId);
-        Entity player = world.entities().get(playerId);
-        if (player == null) {
-            log.error("Attempted to move player {} to world {} but they don't exist or isn't spawned", playerId, worldId);
-            throw new PlayerNotFoundException();
+    public void playerInput(String worldId, String playerId, Input input) {
+        Simulation simulation = getWorld(worldId);
+        log.debug("Processing player input message for player ID: {}, Input: {}", playerId, input);
+        Entity entity = simulation.entities().get(playerId);
+        if (entity != null) {
+            eventPublisher.publishEvent(new Event(worldId, new InputEvent(entity.id(), input)));
         }
-        Entity movedPlayer = player.displace(displacement);
-        world.entities().put(playerId, movedPlayer);
-        eventPublisher.publishEvent(new Event(worldId, new UpsertEvent(playerId, movedPlayer)));
     }
 
-    private World getWorld(String worldId) throws WorldNotFoundException {
+    @Override
+    public void locatePlayer(String worldId, String playerId, Location location) {
+        Map<String, Entity> entities = getWorld(worldId).entities();
+        Entity entity = entities.get(playerId);
+        if (entity == null) {
+            log.error("Attempted to locate player {} but they haven't spawned in this world", playerId);
+            return;
+        }
+        entities.put(playerId, new Entity(playerId, location, entity.velocity()));
+        eventPublisher.publishEvent(new Event(worldId, new LocateEvent(playerId, location)));
+    }
+
+    private Simulation getWorld(String worldId) throws WorldNotFoundException {
         return worlds.get(worldId).orElseThrow(WorldNotFoundException::new);
+    }
+
+    private Simulation createSimulation(World world) {
+        return new Simulation(world, new ConcurrentHashMap<>(), new ConcurrentHashMap<>());
     }
 }

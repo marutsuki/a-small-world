@@ -1,10 +1,10 @@
 import { FC, useCallback } from "react";
-import { World } from "./types";
-import start from "./init";
-import { serverUrl } from "../environment/config";
+import { controller } from "./control/game-controller";
 import initialize from "./events/messaging";
-import listen from "./control/listener";
-import gameController from "./control/game-controller";
+import { movement } from "./movement/controller";
+import { WorldAPI } from "./World";
+import initializeWorld from "./init";
+import locator from "./location/locator";
 
 type GameProps = {
   /** The ID of the world to join. */
@@ -20,29 +20,21 @@ const Game: FC<GameProps> = ({ worldId, playerId }) => {
   const initGame = useCallback(
     async (canvas: HTMLCanvasElement) => {
       // Retrieve world details
-      const world: World = await (
-        await fetch(serverUrl(`worlds/${worldId}`))
-      ).json();
-      const simulation = start(canvas, world.dimension);
-
+      // const world: World = await (
+      //   await fetch(serverUrl(`worlds/${worldId}`))
+      // ).json();
+      const [api, start, stop] = initializeWorld(canvas);
       // Initialize messaging client with callbacks to update the simulation
-      const messaging = initialize(worldId, {
-        onConnect: () => messaging.spawn(playerId),
-        onUpsert: ({ entityId, entity }) => {
-          simulation.put(entityId, entity);
-        },
-        onDelete: ({ entityId }) => {
-          simulation.remove(entityId);
-        },
-      });
+      const messaging = initializeMessaging(playerId, worldId, api);
+      api.addObservers(
+        controller(messaging),
+        movement(),
+        locator(playerId, messaging)
+      );
 
-      // Start listening for user input
-      const stopListening = listen(gameController(playerId, messaging));
+      start();
 
-      return () => {
-        messaging.deactivate();
-        stopListening();
-      };
+      return () => stop();
     },
     [worldId, playerId]
   );
@@ -53,4 +45,31 @@ const Game: FC<GameProps> = ({ worldId, playerId }) => {
   );
 };
 
+const initializeMessaging = (
+  playerId: string,
+  worldId: string,
+  api: WorldAPI
+) => {
+  const messaging = initialize(playerId, worldId, {
+    onConnect: () => messaging?.spawn(),
+    onLocate: ({ entityId, location }) => {
+      const e = api.entity(entityId);
+      if (e !== null) {
+        e.location = location;
+      } else {
+        api.put(entityId, { location });
+      }
+    },
+    onSpawn: ({ entityId, entity }) => {
+      api.put(entityId, entity);
+    },
+    onDespawn: ({ entityId }) => {
+      api.remove(entityId);
+    },
+    onInput: ({ entityId, input }) => {
+      api.patch(entityId, { input });
+    },
+  });
+  return messaging;
+};
 export default Game;

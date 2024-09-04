@@ -5,8 +5,10 @@ import lombok.Getter;
 @Getter
 public enum EventType {
 
-    UPSERT("upsert"),
-    DELETION("delete");
+    SPAWN("spawn"),
+    DESPAWN("despawn"),
+    INPUT("input"),
+    LOCATE("locate");
 
     private final String key;
 
