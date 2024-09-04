@@ -1,7 +1,5 @@
 import { FC, useCallback } from "react";
-import { World } from "./types";
 import start from "./init";
-import { serverUrl } from "../environment/config";
 import initialize from "./events/messaging";
 import listen from "./control/listener";
 import gameController from "./control/game-controller";
@@ -20,19 +18,22 @@ const Game: FC<GameProps> = ({ worldId, playerId }) => {
   const initGame = useCallback(
     async (canvas: HTMLCanvasElement) => {
       // Retrieve world details
-      const world: World = await (
-        await fetch(serverUrl(`worlds/${worldId}`))
-      ).json();
-      const simulation = start(canvas, world.dimension);
+      // const world: World = await (
+      //   await fetch(serverUrl(`worlds/${worldId}`))
+      // ).json();
+      const simulation = start(canvas);
 
       // Initialize messaging client with callbacks to update the simulation
       const messaging = initialize(worldId, {
         onConnect: () => messaging.spawn(playerId),
-        onUpsert: ({ entityId, entity }) => {
+        onSpawn: ({ entityId, entity }) => {
           simulation.put(entityId, entity);
         },
-        onDelete: ({ entityId }) => {
+        onDespawn: ({ entityId }) => {
           simulation.remove(entityId);
+        },
+        onInput: ({ entityId, input }) => {
+          simulation.patch(entityId, { input });
         },
       });
 

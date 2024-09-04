@@ -1,8 +1,9 @@
 package io.marutsuki.asmallworld.games;
 
-import io.marutsuki.asmallworld.games.events.DeleteEvent;
+import io.marutsuki.asmallworld.games.entities.Entity;
+import io.marutsuki.asmallworld.games.events.DespawnEvent;
 import io.marutsuki.asmallworld.games.events.Event;
-import io.marutsuki.asmallworld.games.events.UpsertEvent;
+import io.marutsuki.asmallworld.games.events.SpawnEvent;
 import io.marutsuki.asmallworld.players.Player;
 import io.marutsuki.asmallworld.worlds.World;
 import org.junit.jupiter.api.Test;
@@ -11,6 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.time.Instant;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -36,27 +38,27 @@ public final class GameServiceTest {
         Player player = new Player();
         World world = new World("worldId",
                 Instant.EPOCH,
-                Map.of("playerId", player),
-                new HashMap<>(),
+                Collections.emptyMap(),
                 World.DEFAULT_DIMENSIONS);
-        when(worlds.get("worldId")).thenReturn(Optional.of(world));
+        Simulation simulation = new Simulation(world, new HashMap<>(), Map.of("playerId", player));
+        when(worlds.get("worldId")).thenReturn(Optional.of(simulation));
         service.spawnPlayer("worldId", "playerId");
         verify(dispatcher, times(1))
-                .onEvent(new Event("worldId", new UpsertEvent("playerId", player.toEntity(world))));
+                .onEvent(new Event("worldId", new SpawnEvent("playerId", player.toEntity(world))));
     }
 
     @Test
     public void onPlayerDespawnResponseTest() {
-        Map<String, Player> players = new HashMap<>();
-        players.put("playerId", new Player());
+        Map<String, Entity> entities = new HashMap<>();
         World world = new World("worldId",
                 Instant.EPOCH,
-                players,
-                new HashMap<>(),
+                Collections.emptyMap(),
                 World.DEFAULT_DIMENSIONS);
-        when(worlds.get("worldId")).thenReturn(Optional.of(world));
+        entities.put("playerId", new Player().toEntity(world));
+        Simulation simulation = new Simulation(world, entities, Collections.emptyMap());
+        when(worlds.get("worldId")).thenReturn(Optional.of(simulation));
         service.despawnPlayer("worldId", "playerId");
         verify(dispatcher, times(1))
-                .onEvent(new Event("worldId", new DeleteEvent("playerId")));
+                .onEvent(new Event("worldId", new DespawnEvent("playerId")));
     }
 }

@@ -7,3 +7,6 @@ spring:
 
 client:
   origins: [http://localhost:5173]
+
+simulation:
+  rate: 16

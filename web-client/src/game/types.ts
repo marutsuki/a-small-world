@@ -1,7 +1,9 @@
-export type Location = {
+export type Vector = {
   x: number;
   y: number;
 };
+
+export type Location = Vector;
 
 export type Dimensions = {
   width: number;
@@ -10,10 +12,15 @@ export type Dimensions = {
 
 export type Entity = {
   location: Location;
+  input?: EntityInput;
 };
 
 export type Player = Entity & {
   id: string;
+};
+
+export type EntityInput = {
+  speed: Vector;
 };
 
 export type World = {
