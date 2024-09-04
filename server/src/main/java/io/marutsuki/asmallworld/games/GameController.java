@@ -1,6 +1,7 @@
 package io.marutsuki.asmallworld.games;
 
 import io.marutsuki.asmallworld.games.misc.Input;
+import io.marutsuki.asmallworld.games.misc.Location;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -30,5 +31,11 @@ public class GameController {
     public void onPlayerMove(@DestinationVariable String worldId, @DestinationVariable String playerId, Input message) {
         log.debug("Request: [Player Input], Player ID: {}, World ID: {}, input: {}", playerId, worldId, message);
         service.playerInput(worldId, playerId, message);
+    }
+
+    @MessageMapping("/{worldId}/player/{playerId}/locate")
+    public void onPlayerLocate(@DestinationVariable String worldId, @DestinationVariable String playerId, Location location) {
+        log.info("Request: [Player Locate], Player ID: {}, World ID: {}, location: {}", playerId, worldId, location);
+        service.locatePlayer(worldId, playerId, location);
     }
 }

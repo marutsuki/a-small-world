@@ -1,6 +1,7 @@
 import { Entity } from "./types";
 
 export type WorldAPI = {
+  entity: (id: string) => Entity | null;
   put: (id: string, entity: Entity) => void;
   patch: (id: string, entity: Partial<Entity>) => void;
   remove: (id: string) => void;
@@ -72,6 +73,7 @@ export default class World {
 
   public get api(): WorldAPI {
     return {
+      entity: this.entity.bind(this),
       put: this.put.bind(this),
       patch: this.patch.bind(this),
       remove: this.remove.bind(this),
@@ -80,18 +82,22 @@ export default class World {
     };
   }
 
-  public put(id: string, entity: Entity) {
+  private entity(id: string): Entity | null {
+    return this.entities.get(id) || null;
+  }
+
+  private put(id: string, entity: Entity) {
     this.entities.set(id, entity);
   }
 
-  public patch(id: string, entity: Partial<Entity>) {
+  private patch(id: string, entity: Partial<Entity>) {
     const oldState = this.entities.get(id);
     if (oldState) {
       Object.assign(oldState, entity);
     }
   }
 
-  public remove(id: string) {
+  private remove(id: string) {
     this.entities.delete(id);
   }
 

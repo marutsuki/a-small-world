@@ -1,6 +1,7 @@
 package io.marutsuki.asmallworld.games;
 
 import io.marutsuki.asmallworld.games.misc.Input;
+import io.marutsuki.asmallworld.games.misc.Location;
 import io.marutsuki.asmallworld.players.Player;
 
 public interface GameService {
@@ -17,4 +18,5 @@ public interface GameService {
 
     void playerInput(String worldId, String playerId, Input input);
 
+    void locatePlayer(String worldId, String playerId, Location location);
 }

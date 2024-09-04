@@ -1,7 +1,7 @@
 import { Client } from "@stomp/stompjs";
 import { serverUrl } from "../../environment/config";
-import { DespawnEvent, InputEvent, SpawnEvent } from "./types";
-import { Vector } from "../types";
+import { DespawnEvent, InputEvent, LocateEvent, SpawnEvent } from "./types";
+import { Location, Vector } from "../types";
 
 type InputMessage = {
   speed: Vector;
@@ -12,6 +12,7 @@ export type MessagingInterface = {
   spawn: () => void;
   input: (input: InputMessage) => void;
   deactivate: () => void;
+  locate: (location: Location) => void;
 };
 
 /** Callbacks for the event topics.*/
@@ -20,6 +21,7 @@ export type MessageReceiver = {
   onSpawn: (event: SpawnEvent) => void;
   onDespawn: (event: DespawnEvent) => void;
   onInput: (event: InputEvent) => void;
+  onLocate: (event: LocateEvent) => void;
 };
 
 /**
@@ -32,7 +34,7 @@ export type MessageReceiver = {
 export default function initialize(
   playerId: string,
   worldId: string,
-  { onConnect, onSpawn, onDespawn, onInput }: MessageReceiver
+  { onConnect, onSpawn, onDespawn, onInput, onLocate }: MessageReceiver
 ): MessagingInterface {
   console.info("Initializing messaging client");
   const client = new Client({
@@ -60,6 +62,14 @@ export default function initialize(
         console.debug("Received input event", event);
         onInput(event);
       });
+
+      // Endpoint for entity location events
+      client.subscribe(`/topic/${worldId}/locate`, (message) => {
+        const event: LocateEvent = JSON.parse(message.body);
+        console.debug("Received locate event", event);
+        onLocate(event);
+      });
+
       onConnect();
     },
   });
@@ -77,5 +87,10 @@ export default function initialize(
         body: JSON.stringify(input),
       }),
     deactivate: () => client.deactivate(),
+    locate: (location) =>
+      client.publish({
+        destination: `/publish/${worldId}/player/${playerId}/locate`,
+        body: JSON.stringify(location),
+      }),
   };
 }

@@ -1,4 +1,10 @@
-import { Entity, EntityInput } from "../types";
+import { Entity, EntityInput, Location } from "../types";
+
+/** An event describing the joining a player from the server. */
+export type LocateEvent = {
+  entityId: string;
+  location: Location;
+};
 
 /** An event describing an upsert of an {@link Entity} from the server. */
 export type SpawnEvent = {

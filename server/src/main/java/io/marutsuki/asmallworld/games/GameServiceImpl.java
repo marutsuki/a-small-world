@@ -1,11 +1,9 @@
 package io.marutsuki.asmallworld.games;
 
 import io.marutsuki.asmallworld.games.entities.Entity;
-import io.marutsuki.asmallworld.games.events.DespawnEvent;
-import io.marutsuki.asmallworld.games.events.Event;
-import io.marutsuki.asmallworld.games.events.InputEvent;
-import io.marutsuki.asmallworld.games.events.SpawnEvent;
+import io.marutsuki.asmallworld.games.events.*;
 import io.marutsuki.asmallworld.games.misc.Input;
+import io.marutsuki.asmallworld.games.misc.Location;
 import io.marutsuki.asmallworld.players.Player;
 import io.marutsuki.asmallworld.worlds.World;
 import io.marutsuki.asmallworld.worlds.WorldRepository;
@@ -15,6 +13,7 @@ import org.bson.types.ObjectId;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
@@ -78,6 +77,18 @@ public final class GameServiceImpl implements GameService {
         if (entity != null) {
             eventPublisher.publishEvent(new Event(worldId, new InputEvent(entity.id(), input)));
         }
+    }
+
+    @Override
+    public void locatePlayer(String worldId, String playerId, Location location) {
+        Map<String, Entity> entities = getWorld(worldId).entities();
+        Entity entity = entities.get(playerId);
+        if (entity == null) {
+            log.error("Attempted to locate player {} but they haven't spawned in this world", playerId);
+            return;
+        }
+        entities.put(playerId, new Entity(playerId, location, entity.velocity()));
+        eventPublisher.publishEvent(new Event(worldId, new LocateEvent(playerId, location)));
     }
 
     private Simulation getWorld(String worldId) throws WorldNotFoundException {
