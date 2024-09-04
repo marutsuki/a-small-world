@@ -27,7 +27,7 @@ export const controller = (messaging: MessagingInterface): Observer => {
 
 const newInput = (
   oldInput: EntityInput | null,
-  newInput: EntityInput
+  newInput: EntityInput,
 ): boolean =>
   oldInput === null ||
   oldInput.speed.x !== newInput.speed.x ||
