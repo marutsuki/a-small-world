@@ -36,7 +36,6 @@ public final class WorldControllerTests {
         World aWorld = new World("1",
                 Instant.ofEpochSecond(5000),
                 Collections.emptyMap(),
-                Collections.emptyMap(),
                 World.DEFAULT_DIMENSIONS);
 
         when(repository.findAll())
@@ -58,7 +57,6 @@ public final class WorldControllerTests {
         when(repository.save(any())).thenReturn(
                 new World("1",
                         Instant.ofEpochSecond(5000),
-                        Collections.emptyMap(),
                         Collections.emptyMap(),
                         World.DEFAULT_DIMENSIONS));
 

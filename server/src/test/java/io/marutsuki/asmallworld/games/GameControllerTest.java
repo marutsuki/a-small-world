@@ -1,6 +1,7 @@
 package io.marutsuki.asmallworld.games;
 
 import io.marutsuki.asmallworld.games.misc.Input;
+import io.marutsuki.asmallworld.games.misc.Location;
 import io.marutsuki.asmallworld.games.misc.Vector;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Value;
@@ -51,6 +52,16 @@ public class GameControllerTest {
         stompSession.send("/publish/worldId/player/playerId/input", expectedInput);
 
         verify(service, timeout(1000).times(1)).playerInput("worldId", "playerId", expectedInput);
+        stompSession.disconnect();
+    }
+
+    @Test
+    public void playerLocateEndpointTest() throws ExecutionException, InterruptedException, TimeoutException {
+        StompSession stompSession = session(port);
+        Location expectedLocation = new Location(500, 500);
+        stompSession.send("/publish/worldId/player/playerId/locate", expectedLocation);
+
+        verify(service, timeout(1000).times(1)).locatePlayer("worldId", "playerId", expectedLocation);
         stompSession.disconnect();
     }
 }
