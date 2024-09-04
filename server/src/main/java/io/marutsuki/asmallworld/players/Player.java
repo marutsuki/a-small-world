@@ -11,6 +11,6 @@ public record Player(String id) {
     }
 
     public Entity toEntity(World world) {
-        return new Entity(Location.randomLocation(world.dimension()));
+        return new Entity(id, Location.randomLocation(world.dimension()));
     }
 }

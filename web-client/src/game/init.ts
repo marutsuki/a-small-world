@@ -1,25 +1,21 @@
-import { Dimensions } from "./types";
 import Simulation from "./Simulation";
 
 /**
  * Initializes the simulation.
- * 
+ *
  * @param canvas the canvas element to render to
  * @param dimension the dimensions of the world
  * @returns the {@link Simulation} instance
  */
-export default function start(
-  canvas: HTMLCanvasElement,
-  dimension: Dimensions
-): Simulation {
+export default function start(canvas: HTMLCanvasElement): Simulation {
   const context = canvas.getContext("2d");
   if (!context) {
     throw new Error("Failed to get 2D rendering context");
   }
 
-  const sim = new Simulation(context, dimension);
+  const sim = new Simulation(context);
   const animator = new Animator(60, () => {
-    sim.render();
+    sim.update();
   });
 
   animator.start();
@@ -38,7 +34,7 @@ class Animator {
 
   /**
    * Creates a new {@link Animator} instance.
-   * 
+   *
    * @param fps the frames per second
    * @param callback the callback to update the simulation
    */
