@@ -1,31 +1,31 @@
 export type Vector = {
-  x: number;
-  y: number;
+    x: number;
+    y: number;
 };
 
 export type Location = Vector;
 
 export type Dimensions = {
-  width: number;
-  height: number;
+    width: number;
+    height: number;
 };
 
 export type Entity = {
-  location: Location;
-  input?: EntityInput;
+    location: Location;
+    input?: EntityInput;
 };
 
 export type Player = Entity & {
-  id: string;
+    id: string;
 };
 
 export type EntityInput = {
-  speed: Vector;
+    speed: Vector;
 };
 
 export type World = {
-  id: string;
-  players: Record<string, Player>;
-  entities: Record<string, Entity>;
-  dimension: Dimensions;
+    id: string;
+    players: Record<string, Player>;
+    entities: Record<string, Entity>;
+    dimension: Dimensions;
 };

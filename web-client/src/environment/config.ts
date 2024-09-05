@@ -1,9 +1,12 @@
-type Protocol = "http" | "https" | "ws" | "wss";
+type Protocol = 'http' | 'https' | 'ws' | 'wss';
 export function serverUrl(
-  path: string = "",
-  protocol: Protocol = "http",
+    path: string = '',
+    protocol: Protocol = 'http'
 ): string {
-  return (
-    protocol + "://" + (import.meta.env.SERVER_URL || "localhost:8080/") + path
-  );
+    return (
+        protocol +
+        '://' +
+        (import.meta.env.SERVER_URL || 'localhost:8080/') +
+        path
+    );
 }
