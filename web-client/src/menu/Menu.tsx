@@ -1,6 +1,7 @@
 import { FC, useState } from 'react';
 import { serverUrl } from '../environment/config';
 import { Player, World } from '../game/types';
+import Button from '../common/Button';
 
 type MenuProps = {
     onJoinWorld: (worldId: string, player: Player) => void;
@@ -54,10 +55,10 @@ const Menu: FC<MenuProps> = ({ onJoinWorld }) => {
 
     return (
         <div>
-            <button onClick={createWorld}>Create World</button>
+            <Button id="create-world" onClick={createWorld}>Create World</Button>
             <input type="text" onChange={(e) => setWorldId(e.target.value)} />
-            <button onClick={startWorld}>Start World</button>
-            <button onClick={joinWorld}>Join World</button>
+            <Button id="start-world" onClick={startWorld}>Start World</Button>
+            <Button id="join-world" onClick={joinWorld}>Join World</Button>
         </div>
     );
 };
