@@ -2,53 +2,55 @@ import { Config } from 'tailwindcss';
 
 type ColourContext = 'base' | 'content';
 
-type ColourVariant = 'primary' | 'secondary' | 'error';
+export type ColourVariant = 'primary' | 'secondary' | 'error';
 
 type ColourMode = 'default' | 'hover' | 'active' | 'disabled';
 
 type Theme = {
-    [C in ColourContext]: {
-        [V in ColourVariant]: {
+    [C in ColourVariant]: {
+        [V in ColourContext]: {
             [M in ColourMode]: string;
         };
     };
 };
 
 export const colors: Theme = {
-    base: {
-        primary: {
+    primary: {
+        base: {
             default: '#3D5AFE',
             hover: '#303F9F',
             active: '#8C9EFF',
             disabled: '#78909C',
         },
-        secondary: {
+        content: {
+            default: '#ffffff',
+            hover: '#ffffff',
+            active: '#ffffff',
+            disabled: '#ffffff',
+        },
+    },
+    secondary: {
+        base: {
             default: '#00BCD4',
             hover: '#1565C0',
             active: '#80DEEA',
             disabled: '#78909C',
         },
-        error: {
+        content: {
+            default: '#ffffff',
+            hover: '#ffffff',
+            active: '#ffffff',
+            disabled: '#ffffff',
+        },
+    },
+    error: {
+        base: {
             default: '#D32F2F',
             hover: '#B71C1C',
             active: '#FF8A80',
             disabled: '#78909C',
         },
-    },
-    content: {
-        primary: {
-            default: '#ffffff',
-            hover: '#ffffff',
-            active: '#ffffff',
-            disabled: '#ffffff',
-        },
-        secondary: {
-            default: '#ffffff',
-            hover: '#ffffff',
-            active: '#ffffff',
-            disabled: '#ffffff',
-        },
-        error: {
+        content: {
             default: '#ffffff',
             hover: '#ffffff',
             active: '#ffffff',
