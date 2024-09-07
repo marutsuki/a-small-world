@@ -88,9 +88,3 @@ export const createVariants = <
 >(
     config: T extends VariantConfig<T, K, V> ? T : never
 ) => config;
-
-const ButtonVariants = createVariants({
-    primary: 'bg-primary-base-default text-primary-content-default',
-    secondary: 'bg-secondary-base-default text-secondary-content-default',
-    error: 'bg-error-base-default text-error-content-default',
-});

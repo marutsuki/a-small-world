@@ -1,14 +1,18 @@
 import { FC, useState } from 'react';
-import { serverUrl } from '../environment/config';
-import { Player, World } from '../game/types';
 import Button from '../common/Button';
+import Container from '../common/Container';
+import { Player, World } from '../game/types';
+import { serverUrl } from '../environment/config';
 
-type MenuProps = {
+type JoinMenuProps = {
     onJoinWorld: (worldId: string, player: Player) => void;
 };
-const Menu: FC<MenuProps> = ({ onJoinWorld }) => {
-    const [worldId, setWorldId] = useState('');
 
+/**
+ * Component for rendering the world creation menu.
+ */
+const CreateMenu: FC<JoinMenuProps> = ({ onJoinWorld }) => {
+    const [worldId, setWorldId] = useState('');
     const createWorld = async () => {
         try {
             const response = await fetch(serverUrl('worlds'), {
@@ -16,8 +20,8 @@ const Menu: FC<MenuProps> = ({ onJoinWorld }) => {
             });
             if (response.ok) {
                 const world: World = await response.json();
+                console.info('World created, ID:', world.id);
                 setWorldId(world.id);
-                console.info('World created');
             } else {
                 console.error('Failed to join world');
             }
@@ -28,20 +32,14 @@ const Menu: FC<MenuProps> = ({ onJoinWorld }) => {
 
     const startWorld = async () => {
         try {
-            const response = await fetch(serverUrl(`worlds/${worldId}/start`));
+            let response = await fetch(serverUrl(`worlds/${worldId}/start`));
             if (response.ok) {
                 console.info(`World ${worldId} started`);
             } else {
                 console.error('Failed to start world');
             }
-        } catch (e: unknown) {
-            console.error('Failed to start world', e);
-        }
-    };
-
-    const joinWorld = async () => {
-        try {
-            const response = await fetch(serverUrl(`worlds/${worldId}/join`));
+            // TODO: this is not pretty, should start using redux
+            response = await fetch(serverUrl(`worlds/${worldId}/join`));
             if (response.ok) {
                 const player: Player = await response.json();
                 onJoinWorld(worldId, player);
@@ -49,18 +47,20 @@ const Menu: FC<MenuProps> = ({ onJoinWorld }) => {
                 console.error('Failed to join world');
             }
         } catch (e: unknown) {
-            console.error('Failed to join world', e);
+            console.error('Failed to start world', e);
         }
     };
 
     return (
-        <div>
-            <Button id="create-world" onClick={createWorld}>Create World</Button>
-            <input type="text" onChange={(e) => setWorldId(e.target.value)} />
-            <Button id="start-world" onClick={startWorld}>Start World</Button>
-            <Button id="join-world" onClick={joinWorld}>Join World</Button>
-        </div>
+        <Container variant="neutral">
+            <Button id="create-world" onClick={createWorld}>
+                Create World
+            </Button>
+            <Button id="start-world" onClick={startWorld}>
+                Start World
+            </Button>
+        </Container>
     );
 };
 
-export default Menu;
+export default CreateMenu;

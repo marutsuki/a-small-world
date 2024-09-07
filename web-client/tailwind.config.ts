@@ -2,7 +2,7 @@ import { Config } from 'tailwindcss';
 
 type ColourContext = 'base' | 'content';
 
-export type ColourVariant = 'primary' | 'secondary' | 'error';
+export type ColourVariant = 'primary' | 'secondary' | 'error' | 'neutral';
 
 type ColourMode = 'default' | 'hover' | 'active' | 'disabled';
 
@@ -48,6 +48,20 @@ export const colors: Theme = {
             default: '#D32F2F',
             hover: '#B71C1C',
             active: '#FF8A80',
+            disabled: '#78909C',
+        },
+        content: {
+            default: '#ffffff',
+            hover: '#ffffff',
+            active: '#ffffff',
+            disabled: '#ffffff',
+        },
+    },
+    neutral: {
+        base: {
+            default: '#78909C',
+            hover: '#546E7A',
+            active: '#B0BEC5',
             disabled: '#78909C',
         },
         content: {

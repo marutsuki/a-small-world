@@ -1,10 +1,15 @@
 import { useState } from 'react';
 import './App.css';
 import Game from './game/Game';
-import Menu from './menu/Menu';
+import MainMenu from './menu/MainMenu';
+import JoinMenu from './menu/JoinMenu';
+import CreateMenu from './menu/CreateMenu';
 import { Player } from './game/types';
 
+export type Menu = 'main' | 'join' | 'create';
+
 function App() {
+    const [activeMenu, setActiveMenu] = useState<Menu | null>('main');
     const [playerId, setPlayerId] = useState<string | null>(null);
     const [worldId, setWorldId] = useState<string | null>(null);
 
@@ -13,9 +18,19 @@ function App() {
         setPlayerId(player.id);
     };
 
+    const ActiveMenu = () => {
+        switch (activeMenu) {
+            case 'join':
+                return <JoinMenu onJoinWorld={onJoinWorld} />;
+            case 'create':
+                return <CreateMenu onJoinWorld={onJoinWorld} />;
+            default:
+                return <MainMenu onChangeMenu={setActiveMenu} />;
+        }
+    };
     return (
         <>
-            <Menu onJoinWorld={onJoinWorld} />
+            <ActiveMenu />
             {worldId && playerId && (
                 <Game worldId={worldId} playerId={playerId} />
             )}

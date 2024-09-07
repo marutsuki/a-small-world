@@ -1,10 +1,8 @@
-import { FC } from 'react';
+import React, { ReactNode } from 'react';
 import { ColourVariant } from '../../tailwind.config';
 import { createVariants } from '../colours';
 
-const CommonStyling = 'transition duration-100 ';
-
-const ButtonVariants = createVariants({
+const ContainerVariants = createVariants({
     primary:
         'bg-primary-base-default text-primary-content-default hover:bg-primary-base-hover hover:text-primary-content-hover',
     secondary:
@@ -14,33 +12,22 @@ const ButtonVariants = createVariants({
         'bg-neutral-base-default text-neutral-content-default hover:bg-neutral-base-hover hover:text-neutral-content-hover',
 });
 
-type ButtonProps = {
-    /** The ID of the button element. */
-    id: string;
-    /** The colour variant of the button, defaults to `primary` */
+type ContainerProps = {
+    children: ReactNode;
     variant?: ColourVariant;
-    /** The content of the button. */
-    children: React.ReactNode;
-    /** The function to call when the button is clicked. */
-    onClick: () => void;
 };
 
-/**
- * Generic button component.
- */
-export const Button: FC<ButtonProps> = ({
-    variant = 'primary',
+const CommonStyling = 'transition duration-100 p-4 opacity-80 ';
+
+const Container: React.FC<ContainerProps> = ({
     children,
-    ...props
+    variant = 'primary',
 }) => {
     return (
-        <button
-            {...props}
-            className={CommonStyling.concat(ButtonVariants[variant])}
-        >
+        <div className={CommonStyling.concat(ContainerVariants[variant])}>
             {children}
-        </button>
+        </div>
     );
 };
 
-export default Button;
+export default Container;
