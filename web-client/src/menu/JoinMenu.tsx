@@ -1,36 +1,23 @@
 import { FC, useState } from 'react';
 import Button from '../common/Button';
 import Container from '../common/Container';
-import { Player } from '../game/types';
-import { serverUrl } from '../environment/config';
-
-type JoinMenuProps = {
-    onJoinWorld: (worldId: string, player: Player) => void;
-};
+import { useAppDispatch } from '../store';
+import { joinWorld } from './menu.thunks';
 
 /**
  * Component for a menu enabling the user to join a world.
  */
-const JoinMenu: FC<JoinMenuProps> = ({ onJoinWorld }) => {
+const JoinMenu: FC = () => {
     const [worldId, setWorldId] = useState('');
-    const joinWorld = async () => {
-        try {
-            const response = await fetch(serverUrl(`worlds/${worldId}/join`));
-            if (response.ok) {
-                const player: Player = await response.json();
-                onJoinWorld(worldId, player);
-            } else {
-                console.error('Failed to join world');
-            }
-        } catch (e: unknown) {
-            console.error('Failed to join world', e);
-        }
-    };
-
+    const dispatch = useAppDispatch();
     return (
         <Container variant="neutral">
             <input type="text" onChange={(e) => setWorldId(e.target.value)} />
-            <Button id="join-world" variant="secondary" onClick={joinWorld}>
+            <Button
+                id="join-world"
+                variant="secondary"
+                onClick={() => dispatch(joinWorld(worldId))}
+            >
                 Join World
             </Button>
         </Container>
