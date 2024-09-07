@@ -5,7 +5,9 @@ import Game from '../game/Game';
 const Main: FC = () => {
     return (
         <div className="relative flex flex-col items-center">
-            <Menus />
+            <div className="absolute z-20 top-1/2 -translate-y-1/2">
+                <Menus />
+            </div>
             <Game />
         </div>
     );

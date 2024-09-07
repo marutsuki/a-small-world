@@ -7,12 +7,15 @@ import initializeWorld from './init';
 import locator from './location/locator';
 import { useSelector } from 'react-redux';
 import { selectGame } from './game.slice';
+import { useScreenSize } from './hooks';
 
 /**
  * The game canvas.
  */
 const Game: FC = () => {
     const { worldId, playerId } = useSelector(selectGame);
+    const screenSize = useScreenSize();
+
     const initGame = useCallback(
         async (canvas: HTMLCanvasElement) => {
             if (!worldId || !playerId) {
@@ -37,13 +40,14 @@ const Game: FC = () => {
         },
         [worldId, playerId]
     );
+
     return (
         <canvas
             id="game-canvas"
-            className="absolute z-0"
+            className="relative z-0 bg-black"
             ref={initGame}
-            width={800}
-            height={600}
+            width={screenSize.width}
+            height={screenSize.height}
         >
             Your browser does not support the HTML5 canvas tag.
         </canvas>

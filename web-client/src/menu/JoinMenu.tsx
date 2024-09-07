@@ -12,14 +12,21 @@ const JoinMenu: FC = () => {
     const dispatch = useAppDispatch();
     return (
         <Container variant="neutral">
-            <input type="text" onChange={(e) => setWorldId(e.target.value)} />
-            <Button
-                id="join-world"
-                variant="secondary"
-                onClick={() => dispatch(joinWorld(worldId))}
-            >
-                Join World
-            </Button>
+            <div className="flex gap-2">
+                <input
+                    type="text"
+                    placeholder="World ID"
+                    className="p-1 text-neutral-content-default"
+                    onChange={(e) => setWorldId(e.target.value)}
+                />
+                <Button
+                    id="join-world"
+                    variant="secondary"
+                    onClick={() => dispatch(joinWorld(worldId))}
+                >
+                    Join World
+                </Button>
+            </div>
         </Container>
     );
 };

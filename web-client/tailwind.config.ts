@@ -65,7 +65,7 @@ export const colors: Theme = {
             disabled: '#78909C',
         },
         content: {
-            default: '#ffffff',
+            default: '#000000',
             hover: '#ffffff',
             active: '#ffffff',
             disabled: '#ffffff',
@@ -76,6 +76,9 @@ export const colors: Theme = {
 const config: Config = {
     content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
     theme: {
+        fontFamily: {
+            code: ['"Source Code Pro"', 'monospace'],
+        },
         extend: {
             colors,
         },

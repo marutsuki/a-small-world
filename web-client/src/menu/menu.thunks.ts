@@ -2,6 +2,7 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import { serverUrl } from '../environment/config';
 import { Player, World } from '../game/types';
 import { setActivePlayer, setActiveWorld } from '../game/game.slice';
+import { toggleMenu } from './menu.slice';
 
 export const joinWorld = createAsyncThunk(
     'world/join',
@@ -53,6 +54,7 @@ export const startWorld = createAsyncThunk(
                 console.error('Failed to start world');
             }
             dispatch(joinWorld(worldId));
+            dispatch(toggleMenu('none'));
         } catch (e: unknown) {
             console.error('Failed to start world', e);
         }

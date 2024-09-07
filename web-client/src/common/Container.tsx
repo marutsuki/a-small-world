@@ -17,7 +17,7 @@ type ContainerProps = {
     variant?: ColourVariant;
 };
 
-const CommonStyling = 'transition duration-100 p-4 opacity-80 z-10 ';
+const CommonStyling = 'transition duration-100 p-4 bg-opacity-80 ';
 
 const Container: React.FC<ContainerProps> = ({
     children,
