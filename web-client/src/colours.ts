@@ -1,27 +1,9 @@
 import { ColourVariant } from '../tailwind.config';
 
-/**
- * Utility type for creating an array type of a given length.
- *
- * @typeParam L - The length of the array
- * @typeParam Acc - The accumulator. Should be left as default
- */
-type Counter<
-    L extends number,
-    Acc extends null[] = [],
-> = Acc['length'] extends L ? Acc : Counter<L, [...Acc, null]>;
-
-/**
- * Subtract two literal numbers.
- *
- * @typeParam F - The number to subtract from
- * @typeParam V - The number to subtract by
- */
-type Subtract<F extends number, V extends number> =
-    Counter<F> extends [...infer U, ...Counter<V>] ? U['length'] : never;
-
-/** The maximum number of variants that can be styled in a single configuration entry. */
-type VariantStylingLimit = 10;
+type Split<
+    T extends string,
+    S extends string,
+> = T extends `${infer P1}${S}${infer P2}` ? [P1, ...Split<P2, S>] : [T];
 
 /**
  * Utility type that defines a type containing a given substring.
@@ -30,18 +12,42 @@ type VariantStylingLimit = 10;
  */
 type Substring<T extends string> = `${string}${T}${string}`;
 
+/** The maximum number of variants that can be styled in a single configuration entry. */
+type VariantStylingLimit = 10;
+
+type PropertyArrayContains<
+    T extends string[],
+    V extends string,
+    Acc extends null[] = [],
+> = T['length'] extends VariantStylingLimit
+    ? []
+    : T extends [infer H, ...infer T extends string[]]
+      ? H extends Substring<V>
+          ? PropertyArrayContains<T, V, [...Acc, null]>
+          : never
+      : [];
+
 /**
  * Utility type that forces (potentially) space-separated substrings to all contain a string value.
  *
  * @typeParam T - The string contained in each space-separated substring
  * @typeParam Acc - The accumulator. Should be left as default
  */
-type PropertiesContain<T extends string, Acc extends null[] = []> =
-    Acc['length'] extends Subtract<VariantStylingLimit, 1>
-        ? Substring<T>
-        :
-              | `${Substring<T>} ${PropertiesContain<T, [...Acc, null]>}`
-              | Substring<T>;
+type PropertiesContain<T extends string, V extends string> =
+    Split<T, ' '> extends infer P extends string[]
+        ? PropertyArrayContains<P, V> extends infer U
+            ? U extends never
+                ? never
+                : T
+            : never
+        : never;
+
+/**
+ * The configuration object for a set of variants on a UI component. (Unvalidated)
+ */
+export type VariantConfigMap = {
+    [key in ColourVariant]?: string;
+};
 
 /**
  * The configuration object for a set of variants on a UI component.
@@ -56,6 +62,35 @@ type PropertiesContain<T extends string, Acc extends null[] = []> =
  * });
  * ```
  */
-export type VariantConfig = {
-    [key in ColourVariant]: PropertiesContain<key>;
-};
+type VariantConfig<T extends Record<K, V>, K extends string, V extends string> =
+    // Check that the config is not empty.
+    keyof T extends never
+        ? never
+        : {
+              [key in keyof T]: key extends string
+                  ? PropertiesContain<T[key], key>
+                  : never;
+          };
+
+/**
+ * Creates a variant configuration object.
+ *
+ * Restrictions:
+ * - For every key defined in the object, each space-separated substring of the equivalent value must contain the key.
+ * - The object must contain at least one key-value pair.
+ * @param config
+ * @returns
+ */
+export const createVariants = <
+    T extends Record<K, V>,
+    K extends ColourVariant,
+    V extends string,
+>(
+    config: T extends VariantConfig<T, K, V> ? T : never
+) => config;
+
+const ButtonVariants = createVariants({
+    primary: 'bg-primary-base-default text-primary-content-default',
+    secondary: 'bg-secondary-base-default text-secondary-content-default',
+    error: 'bg-error-base-default text-error-content-default',
+});
