@@ -5,20 +5,22 @@ import { movement } from './movement/controller';
 import { WorldAPI } from './World';
 import initializeWorld from './init';
 import locator from './location/locator';
-
-type GameProps = {
-    /** The ID of the world to join. */
-    worldId: string;
-    /** The ID of the player entity. */
-    playerId: string;
-};
+import { useSelector } from 'react-redux';
+import { selectGame } from './game.slice';
+import { useScreenSize } from './hooks';
 
 /**
  * The game canvas.
  */
-const Game: FC<GameProps> = ({ worldId, playerId }) => {
+const Game: FC = () => {
+    const { worldId, playerId } = useSelector(selectGame);
+    const screenSize = useScreenSize();
+
     const initGame = useCallback(
         async (canvas: HTMLCanvasElement) => {
+            if (!worldId || !playerId) {
+                return;
+            }
             // Retrieve world details
             // const world: World = await (
             //   await fetch(serverUrl(`worlds/${worldId}`))
@@ -38,8 +40,15 @@ const Game: FC<GameProps> = ({ worldId, playerId }) => {
         },
         [worldId, playerId]
     );
+
     return (
-        <canvas id="game-canvas" ref={initGame} width={800} height={600}>
+        <canvas
+            id="game-canvas"
+            className="relative z-0 bg-black"
+            ref={initGame}
+            width={screenSize.width}
+            height={screenSize.height}
+        >
             Your browser does not support the HTML5 canvas tag.
         </canvas>
     );

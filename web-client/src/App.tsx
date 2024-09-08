@@ -1,26 +1,14 @@
-import { useState } from 'react';
-import './App.css';
-import Game from './game/Game';
-import Menu from './menu/Menu';
-import { Player } from './game/types';
+import { FC } from 'react';
+import { Provider } from 'react-redux';
+import store from './store';
+import Main from './layout/Main';
+import Header from './layout/Header';
 
-function App() {
-    const [playerId, setPlayerId] = useState<string | null>(null);
-    const [worldId, setWorldId] = useState<string | null>(null);
-
-    const onJoinWorld = (worldId: string, player: Player) => {
-        setWorldId(worldId);
-        setPlayerId(player.id);
-    };
-
-    return (
-        <>
-            <Menu onJoinWorld={onJoinWorld} />
-            {worldId && playerId && (
-                <Game worldId={worldId} playerId={playerId} />
-            )}
-        </>
-    );
-}
+const App: FC = () => (
+    <Provider store={store}>
+        <Header />
+        <Main />
+    </Provider>
+);
 
 export default App;
