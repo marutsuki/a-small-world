@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public interface WorldRepository extends MongoRepository<World, ObjectId> {
     @NonNull
-    Optional<World> findById(@NonNull ObjectId id);
+    Optional<World> findById(@NonNull String id);
 
     @NonNull
     List<World> findAll();
@@ -17,5 +17,5 @@ public interface WorldRepository extends MongoRepository<World, ObjectId> {
     @NonNull
     <T extends World> T save(@NonNull T world);
 
-    void deleteById(@NonNull ObjectId id);
+    void deleteById(@NonNull String id);
 }

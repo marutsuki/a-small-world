@@ -9,19 +9,24 @@ import io.marutsuki.asmallworld.worlds.World;
 import io.marutsuki.asmallworld.worlds.WorldRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.bson.types.ObjectId;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
 
+import static java.time.Instant.now;
+
+/**
+ * Implementation of {@link GameService}.
+ */
 @Slf4j
 @AllArgsConstructor
 @Service
 public final class GameServiceImpl implements GameService {
 
-    private final ActiveWorlds worlds;
+    private final SimulationManagement worlds;
 
     private final WorldRepository repository;
 
@@ -31,18 +36,18 @@ public final class GameServiceImpl implements GameService {
     public Player addPlayer(String worldId) {
         Simulation simulation = getWorld(worldId);
         Player player = new Player();
-        simulation.players().put(player.id(), player);
+        simulation.getPlayers().put(player.id(), player);
         log.info("Added Player to world {}, Player: {}", worldId, player);
         return player;
     }
 
     @Override
     public void startWorld(String worldId) {
-        World world = repository.findById(new ObjectId(worldId)).orElseThrow(() -> {
+        World world = repository.findById(worldId).orElseThrow(() -> {
             log.error("Attempted to start world but it doesn't exist: {}", worldId);
             return new WorldNotFoundException();
         });
-        worlds.put(worldId, createSimulation(world));
+        worlds.register(worldId, createSimulation(world));
     }
 
     @Override
@@ -51,21 +56,24 @@ public final class GameServiceImpl implements GameService {
             log.error("Attempted to stop world but it doesn't exist: {}", worldId);
             return new WorldNotFoundException();
         });
-        repository.save(simulation.world());
-        worlds.remove(worldId);
+        repository.save(simulation.getWorld());
+        worlds.unregister(worldId);
     }
 
     @Override
     public void spawnPlayer(String worldId, String playerId) {
         Simulation simulation = getWorld(worldId);
         Entity player = simulation.spawnPlayer(playerId);
+        // Update the last accessed time for the world to prevent it from being marked for removal
+        log.info("Updating last access date for world: {} to {}", worldId, now());
+        simulation.access();
         eventPublisher.publishEvent(new Event(worldId, new SpawnEvent(playerId, player)));
     }
 
     @Override
     public void despawnPlayer(String worldId, String playerId) {
         Simulation simulation = getWorld(worldId);
-        simulation.entities().remove(playerId);
+        simulation.getEntities().remove(playerId);
         eventPublisher.publishEvent(new Event(worldId, new DespawnEvent(playerId)));
     }
 
@@ -73,7 +81,7 @@ public final class GameServiceImpl implements GameService {
     public void playerInput(String worldId, String playerId, Input input) {
         Simulation simulation = getWorld(worldId);
         log.debug("Processing player input message for player ID: {}, Input: {}", playerId, input);
-        Entity entity = simulation.entities().get(playerId);
+        Entity entity = simulation.getEntities().get(playerId);
         if (entity != null) {
             eventPublisher.publishEvent(new Event(worldId, new InputEvent(entity.id(), input)));
         }
@@ -81,7 +89,7 @@ public final class GameServiceImpl implements GameService {
 
     @Override
     public void locatePlayer(String worldId, String playerId, Location location) {
-        Map<String, Entity> entities = getWorld(worldId).entities();
+        Map<String, Entity> entities = getWorld(worldId).getEntities();
         Entity entity = entities.get(playerId);
         if (entity == null) {
             log.error("Attempted to locate player {} but they haven't spawned in this world", playerId);
@@ -96,6 +104,6 @@ public final class GameServiceImpl implements GameService {
     }
 
     private Simulation createSimulation(World world) {
-        return new Simulation(world, new ConcurrentHashMap<>(), new ConcurrentHashMap<>());
+        return new Simulation(new ConcurrentHashMap<>(), new ConcurrentHashMap<>(world.players()), new AtomicReference<>(world));
     }
 }

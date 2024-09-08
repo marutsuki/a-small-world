@@ -1,2 +1,6 @@
 client:
   origins: [http://localhost:5173]
+
+simulation:
+  cleanup:
+    rate: 5000

@@ -9,4 +9,5 @@ client:
   origins: [http://localhost:5173]
 
 simulation:
-  rate: 16
+  cleanup:
+    rate: 30000

@@ -8,7 +8,6 @@ import io.marutsuki.asmallworld.games.misc.Vector;
 import io.marutsuki.asmallworld.players.Player;
 import io.marutsuki.asmallworld.worlds.World;
 import io.marutsuki.asmallworld.worlds.WorldRepository;
-import org.bson.types.ObjectId;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,12 +15,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
-import java.time.Instant;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
+import static java.time.Instant.EPOCH;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest(
@@ -29,12 +29,12 @@ import static org.mockito.Mockito.*;
 )
 public final class GameServiceTest {
 
-    private static final String OBJECT_ID = "aaaaaaaaaaaaaaaaaaaaaaaa";
+    private static final String WORLD_ID = "aaaaaaaaaaaaaaaaaaaaaaaa";
     @Autowired
     private GameService service;
 
     @MockBean
-    private ActiveWorlds worlds;
+    private SimulationManagement management;
 
     @MockBean
     private EventDispatcher dispatcher;
@@ -42,17 +42,15 @@ public final class GameServiceTest {
     @MockBean
     private WorldRepository repository;
 
+    World aWorld = new World(WORLD_ID, EPOCH, EPOCH, Collections.emptyMap(), World.DEFAULT_DIMENSIONS);
+
     @BeforeEach
     public void setup() {
         Map<String, Entity> entities = new HashMap<>();
         Player player = new Player("playerId");
-        World world = new World("worldId",
-                Instant.EPOCH,
-                Collections.emptyMap(),
-                World.DEFAULT_DIMENSIONS);
-        entities.put("playerId", player.toEntity(world));
-        Simulation simulation = new Simulation(world, entities, Map.of("playerId", player));
-        when(worlds.get("worldId")).thenReturn(Optional.of(simulation));
+        entities.put("playerId", player.toEntity(aWorld));
+        Simulation simulation = new Simulation(entities, Map.of("playerId", player), new AtomicReference<>(aWorld));
+        when(management.get("worldId")).thenReturn(Optional.of(simulation));
     }
 
     @Test
@@ -85,34 +83,32 @@ public final class GameServiceTest {
 
     @Test
     public void onWorldStartTest() {
-        World aWorld = new World(OBJECT_ID, Instant.EPOCH, Collections.emptyMap(), World.DEFAULT_DIMENSIONS);
-        when(repository.findById(new ObjectId(OBJECT_ID))).thenReturn(Optional.of(aWorld));
-        service.startWorld(OBJECT_ID);
-        verify(worlds, times(1))
-                .put(OBJECT_ID, new Simulation(aWorld, Collections.emptyMap(), Collections.emptyMap()));
+        when(repository.findById(WORLD_ID)).thenReturn(Optional.of(aWorld));
+        service.startWorld(WORLD_ID);
+        verify(management, times(1))
+                .register(WORLD_ID, new Simulation(aWorld, Collections.emptyMap()));
     }
 
     @Test
     public void onWorldStopTest() {
-        World aWorld = new World(OBJECT_ID, Instant.EPOCH, Collections.emptyMap(), World.DEFAULT_DIMENSIONS);
-        when(worlds.get(OBJECT_ID))
-                .thenReturn(Optional.of(new Simulation(aWorld, Collections.emptyMap(), Collections.emptyMap())));
-        service.stopWorld(OBJECT_ID);
+        when(management.get(WORLD_ID))
+                .thenReturn(Optional.of(new Simulation(aWorld, Collections.emptyMap())));
+        service.stopWorld(WORLD_ID);
         verify(repository, times(1)).save(any(World.class));
-        verify(worlds, times(1)).remove(OBJECT_ID);
+        verify(management, times(1)).unregister(WORLD_ID);
     }
 
     @Test
     public void onNonExistentWorldStartTest() {
-        when(worlds.get(OBJECT_ID)).thenReturn(Optional.empty());
+        when(management.get(WORLD_ID)).thenReturn(Optional.empty());
         Assertions.assertThrows(WorldNotFoundException.class,
-                () -> service.startWorld(OBJECT_ID));
+                () -> service.startWorld(WORLD_ID));
     }
 
     @Test
     public void onNonExistentWorldStopTest() {
-        when(worlds.get(OBJECT_ID)).thenReturn(Optional.empty());
+        when(management.get(WORLD_ID)).thenReturn(Optional.empty());
         Assertions.assertThrows(WorldNotFoundException.class,
-                () -> service.stopWorld(OBJECT_ID));
+                () -> service.stopWorld(WORLD_ID));
     }
 }

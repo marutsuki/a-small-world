@@ -9,10 +9,11 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 
+import static java.time.Instant.EPOCH;
+import static java.time.Instant.ofEpochSecond;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -34,7 +35,8 @@ public final class WorldControllerTests {
     @Test
     public void getAllWorldsTest() throws Exception {
         World aWorld = new World("1",
-                Instant.ofEpochSecond(5000),
+                ofEpochSecond(5000),
+                EPOCH,
                 Collections.emptyMap(),
                 World.DEFAULT_DIMENSIONS);
 
@@ -56,7 +58,8 @@ public final class WorldControllerTests {
     public void postWorldTest() throws Exception {
         when(repository.save(any())).thenReturn(
                 new World("1",
-                        Instant.ofEpochSecond(5000),
+                        ofEpochSecond(5000),
+                        EPOCH,
                         Collections.emptyMap(),
                         World.DEFAULT_DIMENSIONS));
 
