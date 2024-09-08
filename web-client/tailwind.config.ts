@@ -45,7 +45,7 @@ export const colors: Theme = {
     },
     error: {
         base: {
-            default: '#D32F2F',
+            default: '#e65555',
             hover: '#B71C1C',
             active: '#FF8A80',
             disabled: '#78909C',
@@ -81,6 +81,15 @@ const config: Config = {
         },
         extend: {
             colors,
+            animation: {
+                blink: 'blink 1s step-start infinite',
+            },
+            keyframes: {
+                blink: {
+                    '0%, 100%': { opacity: '1' },
+                    '50%': { opacity: '0' },
+                },
+            },
         },
     },
     plugins: [],
