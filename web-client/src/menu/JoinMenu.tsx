@@ -7,7 +7,6 @@ import { selectErrorContext } from '../error/error.slice';
 import { useSelector } from 'react-redux';
 import ErrorAlert from '../error/ErrorAlert';
 import { toggleMenu } from './menu.slice';
-import { BackIcon } from '../common/icons';
 
 /**
  * Component for a menu enabling the user to join a world.

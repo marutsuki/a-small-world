@@ -4,6 +4,7 @@ import io.marutsuki.asmallworld.games.entities.Entity;
 import io.marutsuki.asmallworld.games.events.*;
 import io.marutsuki.asmallworld.games.misc.Input;
 import io.marutsuki.asmallworld.games.misc.Location;
+import io.marutsuki.asmallworld.games.misc.Message;
 import io.marutsuki.asmallworld.players.Player;
 import io.marutsuki.asmallworld.worlds.World;
 import io.marutsuki.asmallworld.worlds.WorldRepository;
@@ -89,6 +90,15 @@ public final class GameServiceImpl implements GameService {
         }
         entities.put(playerId, new Entity(playerId, location, entity.velocity()));
         eventPublisher.publishEvent(new Event(worldId, new LocateEvent(playerId, location)));
+    }
+
+    @Override
+    public void messageFromPlayer(String worldId, String playerId, Message message) {
+        Simulation simulation = getWorld(worldId);
+        Entity entity = simulation.entities().get(playerId);
+        if (entity != null) {
+            eventPublisher.publishEvent(new Event(worldId, new MessageEvent(entity.id(), message.content())));
+        }
     }
 
     private Simulation getWorld(String worldId) throws WorldNotFoundException {

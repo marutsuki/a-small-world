@@ -22,3 +22,9 @@ export type InputEvent = {
     entityId: string;
     input: EntityInput;
 };
+
+/** An event describing the message of an {@link Entity} from the server. */
+export type MessageEvent = {
+    entityId: string;
+    message: string;
+};

@@ -8,7 +8,8 @@ public enum EventType {
     SPAWN("spawn"),
     DESPAWN("despawn"),
     INPUT("input"),
-    LOCATE("locate");
+    LOCATE("locate"),
+    MESSAGE("message");
 
     private final String key;
 

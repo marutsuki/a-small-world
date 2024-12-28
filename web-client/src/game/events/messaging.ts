@@ -13,6 +13,7 @@ export type MessagingInterface = {
     input: (input: InputMessage) => void;
     deactivate: () => void;
     locate: (location: Location) => void;
+    message: (content: string) => void;
 };
 
 /** Callbacks for the event topics.*/
@@ -22,6 +23,7 @@ export type MessageReceiver = {
     onDespawn: (event: DespawnEvent) => void;
     onInput: (event: InputEvent) => void;
     onLocate: (event: LocateEvent) => void;
+    onMessage: (event: MessageEvent) => void;
 };
 
 /**
@@ -34,7 +36,14 @@ export type MessageReceiver = {
 export default function initialize(
     playerId: string,
     worldId: string,
-    { onConnect, onSpawn, onDespawn, onInput, onLocate }: MessageReceiver
+    {
+        onConnect,
+        onSpawn,
+        onDespawn,
+        onInput,
+        onLocate,
+        onMessage,
+    }: MessageReceiver
 ): MessagingInterface {
     console.info('Initializing messaging client');
     const client = new Client({
@@ -70,6 +79,13 @@ export default function initialize(
                 onLocate(event);
             });
 
+            // Endpoint for entity message events
+            client.subscribe(`/topic/${worldId}/message`, (message) => {
+                const event: MessageEvent = JSON.parse(message.body);
+                console.debug('Received message event', event);
+                onMessage(event);
+            });
+
             onConnect();
         },
     });
@@ -91,6 +107,13 @@ export default function initialize(
             client.publish({
                 destination: `/publish/${worldId}/player/${playerId}/locate`,
                 body: JSON.stringify(location),
+            }),
+        message: (content) =>
+            client.publish({
+                destination: `/publish/${worldId}/player/${playerId}/message`,
+                body: JSON.stringify({
+                    content,
+                }),
             }),
     };
 }
