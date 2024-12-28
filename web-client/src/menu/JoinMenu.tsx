@@ -6,6 +6,8 @@ import { joinWorld } from './menu.thunks';
 import { selectErrorContext } from '../error/error.slice';
 import { useSelector } from 'react-redux';
 import ErrorAlert from '../error/ErrorAlert';
+import { toggleMenu } from './menu.slice';
+import { BackIcon } from '../common/icons';
 
 /**
  * Component for a menu enabling the user to join a world.
@@ -17,6 +19,13 @@ const JoinMenu: FC = () => {
     return (
         <Container variant="neutral">
             <div className="flex flex-col gap-5">
+                <Button
+                    id="join-world"
+                    variant="neutral"
+                    onClick={() => dispatch(toggleMenu('main'))}
+                >
+                    Back
+                </Button>
                 <div className="flex gap-2">
                     <input
                         type="text"

@@ -8,6 +8,7 @@ import { selectWorldId } from '../game/game.slice';
 import VerticalRule from '../common/VerticalRule';
 import { selectErrorContext } from '../error/error.slice';
 import ErrorAlert from '../error/ErrorAlert';
+import { toggleMenu } from './menu.slice';
 
 /**
  * Component for rendering the world creation menu.
@@ -19,6 +20,13 @@ const CreateMenu: FC = () => {
     return (
         <Container variant="neutral">
             <div className="flex flex-col gap-5">
+                <Button
+                    id="join-world"
+                    variant="neutral"
+                    onClick={() => dispatch(toggleMenu('main'))}
+                >
+                    Back
+                </Button>
                 <div className="flex justify-center items-center gap-5">
                     <Button
                         id="create-world"
