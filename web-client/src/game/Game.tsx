@@ -72,7 +72,7 @@ const Game: FC = () => {
         <section>
             <canvas
                 id="game-canvas"
-                className="relative z-0 bg-black"
+                className="relative z-0 bg-black w-screen h-[calc(100vh-50px)]"
                 ref={initGame}
                 width={screenSize.width}
                 height={screenSize.height}
