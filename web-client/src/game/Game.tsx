@@ -15,6 +15,7 @@ import PlayerView from './views/PlayerView';
  * The game canvas.
  */
 const Game: FC = () => {
+    const messageBox = useRef<HTMLInputElement>(null);
     const messager = useRef<MessagingInterface>();
     const [typing, setTyping] = useState(false);
     const [message, setMessage] = useState('');
@@ -53,26 +54,34 @@ const Game: FC = () => {
         [worldId, playerId]
     );
 
+    useEffect(() => {
+        if (typing) {
+            messageBox.current?.focus();
+        }
+    }, [typing]);
+
     const sendMessage = useCallback(() => {
-        if (messager.current) {
+        if (messager.current && message.length > 0) {
             messager.current.message(message);
         }
+        setTyping(false);
+        setMessage('');
     }, [message]);
 
     useEffect(() => {
         const el = (e: KeyboardEvent) => {
             if (e.key === 'Enter') {
-                if (message.length > 0) {
+                if (typing) {
                     sendMessage();
+                } else {
+                    setTyping(true);
                 }
-                setTyping((t) => !t);
-                setMessage('');
             }
         };
         addEventListener('keypress', el);
 
         return () => removeEventListener('keypress', el);
-    }, [message, sendMessage]);
+    }, [message, typing, sendMessage]);
 
     return (
         <section>
@@ -86,16 +95,17 @@ const Game: FC = () => {
                 Your browser does not support the HTML5 canvas tag.
             </canvas>
             {typing && (
-                <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex gap-1">
+                <div className="fixed bottom-0 flex gap-1 w-screen bg-neutral-base-default p-1">
                     <input
-                        className="p-1 text-neutral-content-default"
+                        ref={messageBox}
+                        className="p-1 text-neutral-content-default flex-1"
                         type="text"
                         placeholder="Type something..."
                         onChange={(e) => setMessage(e.target.value)}
                         value={message}
                     />
                     <Button id="send-button" onClick={sendMessage}>
-                        Send
+                        Send Message
                     </Button>
                 </div>
             )}
