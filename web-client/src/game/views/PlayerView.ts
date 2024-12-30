@@ -35,6 +35,14 @@ export default class PlayerView {
         this.api.patch(this.entityId, { input: this._input || undefined });
     }
 
+    public step(): void {
+        if (this._input) {
+            this._location.x += this._input.speed.x;
+            this._location.y += this._input.speed.y;
+            this.update();
+        }
+    }
+
     public update(): void {
         this.api.put(this.entityId, {
             type: 'polygon',

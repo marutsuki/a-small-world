@@ -8,7 +8,7 @@ export default class Renderer {
                 context.fillRect(entity.location.x, entity.location.y, 10, 10);
                 break;
             case 'text':
-                context.font = '"Source Code Pro" 16px, monospace';
+                context.font = 'bold 16px monospace';
                 context.fillText(
                     entity.content,
                     entity.location.x,

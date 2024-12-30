@@ -23,6 +23,7 @@ const Game: FC = () => {
 
     const initGame = useCallback(
         async (canvas: HTMLCanvasElement) => {
+            const players = new Map<string, PlayerView>();
             if (!worldId || !playerId) {
                 return;
             }
@@ -32,11 +33,16 @@ const Game: FC = () => {
             // ).json();
             const [api, start, stop] = initializeWorld(canvas);
             // Initialize messaging client with callbacks to update the simulation
-            const messaging = initializeMessaging(playerId, worldId, api);
+            const messaging = initializeMessaging(
+                playerId,
+                worldId,
+                api,
+                players
+            );
             messager.current = messaging;
             api.addObservers(
                 controller(messaging),
-                movement(),
+                movement(players),
                 locator(playerId, messaging)
             );
 
@@ -100,9 +106,9 @@ const Game: FC = () => {
 const initializeMessaging = (
     playerId: string,
     worldId: string,
-    api: WorldAPI
+    api: WorldAPI,
+    players: Map<string, PlayerView>
 ) => {
-    const players = new Map<string, PlayerView>();
     const messaging = initialize(playerId, worldId, {
         onConnect: () => messaging?.spawn(),
         onLocate: ({ entityId, location }) => {

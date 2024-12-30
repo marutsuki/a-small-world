@@ -1,14 +1,10 @@
-import { Observer, WorldAPI } from '../World';
+import PlayerView from '../views/PlayerView';
+import { Observer } from '../World';
 
-export const movement = (): Observer => {
+export const movement = (views: Map<string, PlayerView>): Observer => {
     return {
-        onUpdate: function (api: WorldAPI): void {
-            api.forEach((entity) => {
-                if (entity.input) {
-                    entity.location.x += entity.input.speed.x;
-                    entity.location.y += entity.input.speed.y;
-                }
-            });
+        onUpdate: function (): void {
+            views.forEach((entity) => entity.step());
         },
     };
 };
