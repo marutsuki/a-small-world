@@ -51,6 +51,30 @@ export default function initialize(
         onMessage,
     }: MessageReceiver
 ): MessagingInterface {
+    const msgI: MessagingInterface = {
+        spawn: () =>
+            client.publish({
+                destination: `/publish/${worldId}/player/${playerId}/spawn`,
+            }),
+        input: (input) =>
+            client.publish({
+                destination: `/publish/${worldId}/player/${playerId}/input`,
+                body: JSON.stringify(input),
+            }),
+        deactivate: () => client.deactivate(),
+        locate: (location) =>
+            client.publish({
+                destination: `/publish/${worldId}/player/${playerId}/locate`,
+                body: JSON.stringify(location),
+            }),
+        message: (content) =>
+            client.publish({
+                destination: `/publish/${worldId}/player/${playerId}/message`,
+                body: JSON.stringify({
+                    content,
+                }),
+            }),
+    };
     console.info('Initializing messaging client');
     const client = new Client({
         brokerURL: serverUrl('events', 'ws'),
@@ -98,28 +122,5 @@ export default function initialize(
 
     client.activate();
 
-    return {
-        spawn: () =>
-            client.publish({
-                destination: `/publish/${worldId}/player/${playerId}/spawn`,
-            }),
-        input: (input) =>
-            client.publish({
-                destination: `/publish/${worldId}/player/${playerId}/input`,
-                body: JSON.stringify(input),
-            }),
-        deactivate: () => client.deactivate(),
-        locate: (location) =>
-            client.publish({
-                destination: `/publish/${worldId}/player/${playerId}/locate`,
-                body: JSON.stringify(location),
-            }),
-        message: (content) =>
-            client.publish({
-                destination: `/publish/${worldId}/player/${playerId}/message`,
-                body: JSON.stringify({
-                    content,
-                }),
-            }),
-    };
+    return msgI;
 }

@@ -110,7 +110,9 @@ const initializeMessaging = (
     players: Map<string, PlayerView>
 ) => {
     const messaging = initialize(playerId, worldId, {
-        onConnect: () => messaging?.spawn(),
+        onConnect: () => {
+            messaging.spawn();
+        },
         onLocate: ({ entityId, location }) => {
             const e = players.get(entityId);
             if (e) {
@@ -124,7 +126,7 @@ const initializeMessaging = (
         },
         onSpawn: ({ entityId, entity }) => {
             const view = new PlayerView(api, entityId, entity.location);
-            view.update();
+            players.set(entityId, view);
         },
         onDespawn: ({ entityId }) => {
             players.get(entityId)?.remove();
