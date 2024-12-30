@@ -9,6 +9,7 @@ import { useSelector } from 'react-redux';
 import { selectGame } from './game.slice';
 import { useScreenSize } from './hooks';
 import Button from '../common/Button';
+import PlayerView from './views/PlayerView';
 
 /**
  * The game canvas.
@@ -101,27 +102,38 @@ const initializeMessaging = (
     worldId: string,
     api: WorldAPI
 ) => {
+    const players = new Map<string, PlayerView>();
     const messaging = initialize(playerId, worldId, {
         onConnect: () => messaging?.spawn(),
         onLocate: ({ entityId, location }) => {
-            const e = api.entity(entityId);
-            if (e !== null) {
+            const e = players.get(entityId);
+            if (e) {
                 e.location = location;
+                e.update();
             } else {
-                api.put(entityId, { location });
+                const view = new PlayerView(api, entityId, location);
+                view.update();
+                players.set(entityId, view);
             }
         },
         onSpawn: ({ entityId, entity }) => {
-            api.put(entityId, entity);
+            const view = new PlayerView(api, entityId, entity.location);
+            view.update();
         },
         onDespawn: ({ entityId }) => {
-            api.remove(entityId);
+            players.get(entityId)?.remove();
         },
         onInput: ({ entityId, input }) => {
-            api.patch(entityId, { input });
+            const v = players.get(entityId);
+            if (v) {
+                v.input = input;
+            }
         },
         onMessage: ({ entityId, message }) => {
-            console.log('received message', message);
+            const v = players.get(entityId);
+            if (v) {
+                v.message = message;
+            }
         },
     });
     return messaging;

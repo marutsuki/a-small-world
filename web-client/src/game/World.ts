@@ -1,3 +1,4 @@
+import Renderer from './Renderer';
 import { Entity } from './types';
 
 export type WorldAPI = {
@@ -19,7 +20,10 @@ export default class World {
     private observers: Observer[] = [];
     private entities: Map<string, Entity> = new Map();
     private started = false;
-    public constructor(private context: CanvasRenderingContext2D) {}
+    private renderer: Renderer;
+    public constructor(private context: CanvasRenderingContext2D) {
+        this.renderer = new Renderer();
+    }
 
     public addObservers(...observer: Observer[]): void {
         this.observers.push(...observer);
@@ -66,8 +70,7 @@ export default class World {
         );
 
         this.entities.forEach((entity) => {
-            this.context.fillStyle = 'white';
-            this.context.fillRect(entity.location.x, entity.location.y, 10, 10);
+            this.renderer.render(entity, this.context);
         });
     }
 

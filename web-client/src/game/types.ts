@@ -10,10 +10,21 @@ export type Dimensions = {
     height: number;
 };
 
+type Polygon = {
+    // For simplicity, just render a fixed dimensions square
+    type: 'polygon';
+};
+
+type Text = {
+    type: 'text';
+    content: string;
+};
+type EntityType = Polygon | Text;
+
 export type Entity = {
     location: Location;
     input?: EntityInput;
-};
+} & EntityType;
 
 export type Player = Entity & {
     id: string;

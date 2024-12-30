@@ -1,6 +1,12 @@
 import { Client } from '@stomp/stompjs';
 import { serverUrl } from '../../environment/config';
-import { DespawnEvent, InputEvent, LocateEvent, SpawnEvent } from './types';
+import {
+    DespawnEvent,
+    InputEvent,
+    LocateEvent,
+    MessageEvent,
+    SpawnEvent,
+} from './types';
 import { Location, Vector } from '../types';
 
 type InputMessage = {
