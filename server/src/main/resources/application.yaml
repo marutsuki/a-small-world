@@ -5,6 +5,11 @@ spring:
     mongodb:
       uri: mongodb://localhost:27017/asmallworld
 
+api:
+  rateLimit:
+    maxTokens: 10
+    tokensPerMin: 10
+
 client:
   origins: [http://localhost:5173]
 

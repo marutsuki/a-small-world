@@ -24,6 +24,7 @@ repositories {
 }
 
 dependencies {
+	implementation("com.bucket4j:bucket4j_jdk17-core:8.14.0")
 	implementation("org.springframework.boot:spring-boot-starter-data-mongodb")
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("org.springframework.boot:spring-boot-starter-websocket")
